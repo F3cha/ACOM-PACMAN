@@ -13,7 +13,7 @@ DEFINE_COLUNA   EQU 600CH      ; endereço do comando para definir a coluna
 DEFINE_PIXEL    EQU 6012H      ; endereço do comando para escrever um pixel
 APAGA_AVISO     EQU 6040H      ; endereço do comando para apagar o aviso de nenhum cenário selecionado
 APAGA_ECRÃ      EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
-SELECIONA_FUNDO EQU 6042H      ; endereço do comando para selecionar uma imagem de fundo
+SELECIONA_FUNDO EQU 6042H      ; ender eço do comando para selecionar uma imagem de fundo
 
 LINHA EQU 16         ; linha do boneco (a meio do ecrã))
 COLUNA EQU 30         ; coluna do boneco (a meio do ecrã)
