@@ -17,6 +17,7 @@ SELECIONA_FUNDO EQU 6042H      ; ender eço do comando para selecionar uma image
 
 LINHA EQU 16         ; linha do boneco (a meio do ecrã))
 COLUNA EQU 30         ; coluna do boneco (a meio do ecrã)
+MASCARA 0FH
 
 LARGURA	EQU	4		   ; largura do fanstama
 ALTURA EQU 4          ; altura do fanstasma
@@ -131,6 +132,41 @@ escreve_pixel:
 	MOV [DEFINE_COLUNA], R2		; seleciona a coluna
 	MOV [DEFINE_PIXEL], R6		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
-		
+
+; **********************************************************************
+; Chama_Teclado - Vai fazer um varrimento das teclas e guardar em R0
+;
+; Argumento
+;
+; **********************************************************************
+
+CHAMA_TECLADO:
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    MOV R1, 0010H
+    MOV R2, TEC_LINHA
+    MOV R3, TEC_COLUNA
+    MOV R4, MASCARA
+SEM_Tecla
+    CMP R1, 0
+    JZ FIM_TECLADO
+    SHR R1, 1
+    MOVB [R2], R1
+    MOVB R0, [R3]
+    AND R0, R4
+FIM_TECLADO
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    RET
+
+
+
+
+
+
 fim:
 	JMP fim
