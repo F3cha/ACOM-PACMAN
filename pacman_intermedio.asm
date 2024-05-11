@@ -51,7 +51,6 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
 						; inicializado. O 1.º end. de retorno será 
 						; armazenado em 11FEH (1200H-2)
 							
-<<<<<<< HEAD
 DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 	WORD 4H
 	WORD 4H
@@ -67,14 +66,6 @@ DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 	
-=======
-DEF_BONECO:			    ; tabela que define o boneco (cor, largura, pixels)
-	WORD LARGURA
-	WORD ALTURA
-	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
-     
-
->>>>>>> 5c58f7dab36eb674c2d2346a2ebcabf85e94c344
 ; *********************************************************************************
 ; * Código
 ; *********************************************************************************
@@ -83,7 +74,6 @@ inicio:
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1	; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1	; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
-<<<<<<< HEAD
 	MOV  [SELECIONA_FUNDO], R1
 	MOV	 R1, 0			    ; cenário de fundo número 0
 	
@@ -92,10 +82,6 @@ inicio:
 	MOV R3, DEF_PACMAN_PARADO
 	
 	CALL criar_boneco
-=======
-	MOV	 R1, 0			    ; cenário de fundo número 0
-	CALL criar_fantasma
->>>>>>> 5c58f7dab36eb674c2d2346a2ebcabf85e94c344
 
 ; **********************************************************************
 ; DESENHA_BONECO - Desenha um fanstasma na linha e coluna indicadas
