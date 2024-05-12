@@ -122,7 +122,7 @@ inicio:
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
 	CMP R0, R2
-	JZ Movimento
+	JZ inicio
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
 	INPUT_VERIFICADO: MOV R2, R0
