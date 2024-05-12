@@ -78,21 +78,21 @@ DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 	WORD 4H
 	WORD 4H
 	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
- 
+
  DEF_PACMAN_PARADO:
 	WORD 16
 	WORD 40
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
-	
+
  DEF_PACMAN_ANDAR:
 	WORD 16
 	WORD 20
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
-	
+
 ; *********************************************************************************
 ; * Programa
 ; *********************************************************************************
@@ -106,17 +106,16 @@ iniciar:
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
-	MOV  [DISPLAY], 0				; colocar display a zero
 	MOV	 R1, 0
 inicio:
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
 	CALL criar_boneco
 	MOV R1, 0
-	
+
 	MOV R1, DEF_PACMAN_ANDAR		; chama funcao cria_boneco com argumento o pacman a andar
 	CALL criar_boneco
 	MOV R1, 0
-	
+
 	MOV R1, DEF_FANTASMA            ; chama funcao cria_boneco com argumento o fantasma
 	CALL criar_boneco
 	MOV R1, 0
@@ -135,7 +134,7 @@ inicio:
 ; Argumentos:   R1 - linha do boneco
 ;               R2 - coluna do boneco
 ;               R3 - tabela que define o boneco
-; **********************************************************************	
+; **********************************************************************
 criar_boneco:
 	PUSH R1
 	PUSH R2
@@ -144,7 +143,7 @@ criar_boneco:
 	PUSH R5
 	PUSH R6
 	PUSH R7
-	
+
 	MOV R2, [R1]			; obtém a linha onde será desenhado o boneco
 	ADD R1, 2
 	MOV R3, [R1]			; obtém a coluna onde será desenhado o boneco
@@ -154,15 +153,15 @@ criar_boneco:
 	ADD R1, 2
 	MOV R5, [R1]			; obtém a altura do boneco
 	ADD R1, 2
-	
+
 desenha_boneco:
 	MOV R6, [R1]			; obtém a cor do proximo pixel
-	CALL escreve_pixel	
+	CALL escreve_pixel
 	ADD R1, 2				; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD R3, 1          		; próxima coluna
     SUB R4, 1				; menos uma coluna para tratar
     JNZ desenha_boneco    	; continua até percorrer toda a largura do objeto
-	MOV R4, R7				
+	MOV R4, R7
 	SUB R5, 1
 	JNZ muda_linhas			; muda para a proxima linha
 	POP R7
@@ -173,7 +172,7 @@ desenha_boneco:
 	POP	R2
 	POP R1
 	RET						; termina o desenho
-	
+
 muda_linhas:
 	ADD R2, 1				; muda para a proxima linha
 	SUB R3, R7				; volta a escrever no inicio da linha
@@ -231,7 +230,7 @@ PUSH R5
 PUSH R6
 PUSH R7
 MOV R5, CEM
-MOV R3, DISPLAY ; R3 endereco de display
+MOV R3, DISPLAY ; R3 endereco de display :)
 MOV R6, TECLA_4
 MOV R7, TECLA_6
 CICLO_CONTADOR:
@@ -242,62 +241,16 @@ JNZ RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
 
 CMP R6, R0 ; caso a tecla premida seja a 4 ele vai incrementar o contador
 JZ CONTADOR_SOMA
-CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador
+CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador.
 JZ CONTADOR_SUBTRAI
 JMP CICLO_CONTADOR
 UPDATE_DISPLAY:
     MOV [R3], R11
     JMP CICLO_CONTADOR
 TRANSFORMA_DECIMAL:
-    PUSH R1
-    PUSH R2
-    PUSH R3
-    PUSH R4
-
-    MOV R1, 100
-    CMP R11, R1
-    JZ  CASO_CEM        ; como o unico numero maior que 99 que o contador suporta e o 100
-                        ; foi criada esta rotina para escrever o 100, para nao ser necessario
-                        ; verificar se o numero era maior que 99, pois a passagem para decimal
-                        ; iria exigir uma rotina diferente dos numeros 10-99
-
-    MOV R1, 9
-    CMP R11, R1
-    JGE CONVERT            ; apenas os numeros maiores do que 9 sao diferentes de hexadecimal
-                        ; para decimal
-    POP R4
-    POP R3
-    POP R2
-    POP R1
-    JMP UPDATE_DISPLAY
-
-; passagem dos numeros de hexadecimal para decimal
-CONVERT:
-    MOV R1, R11
-    MOV R2, 10
-    DIV R1, R2
-    SHL R1, 4
-    MOV R2, R1
-
-    MOV R1, R11
-    MOV R3, 10
-    MOD R1, R3
-    MOV R3, R1
-
-    OR R2, R3
-    MOV R11, R2
-    POP R4
-    POP R3
-    POP R2
-    POP R1
-    JMP UPDATE_DISPLAY
-CASO_CEM:
-    MOV R11, 1
-    SHL R11, 8
-    POP R4
-    POP R3
-    POP R2
-    POP R1
+    ;
+    ;
+    ;
     JMP UPDATE_DISPLAY
 CONTADOR_SOMA:
     CMP R11, R5 ; vai verificar se o contador esta no limite
@@ -309,6 +262,7 @@ CONTADOR_SUBTRAI:
     JZ RETURN_CONTADOR
     SUB R11, 1
     JMP TRANSFORMA_DECIMAL
+
 RETURN_CONTADOR:
 POP R7
 POP R6
