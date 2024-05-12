@@ -122,18 +122,8 @@ inicio:
 	MOV R1, 0
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
-<<<<<<< HEAD
 	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
 	JZ inicio
-=======
-<<<<<<< HEAD
-	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
-	JZ inicio
-=======
-	CMP R0, R2
-	JZ Movimento
->>>>>>> origin/main
->>>>>>> bad4609fb8d1398b3afca6ec6373eac368a1967b
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
 	INPUT_VERIFICADO: MOV R2, R0; vai guardar a ultima tecla pressionada
@@ -209,13 +199,10 @@ VERIFICA_INPUT:
     MOV R2, TECLA_4
     CMP R0, R2
     JZ CHAMAR_CALL_CONTADOR
-<<<<<<< HEAD
 
     MOV R2, TECLA_6
     CMP R0, R2
     JZ CHAMAR_CALL_CONTADOR
-=======
->>>>>>> bad4609fb8d1398b3afca6ec6373eac368a1967b
     JMP inicio
 
     CHAMAR_CALL_CONTADOR:
@@ -252,7 +239,6 @@ MOV R1, R0
 CALL CHAMA_TECLADO
 CMP R0, R1 ; Vai verificar se a tecla ainda esta premida
 JNZ RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
-<<<<<<< HEAD
 
 CMP R6, R0 ; caso a tecla premida seja a 4 ele vai incrementar o contador
 JZ CONTADOR_SOMA
@@ -323,30 +309,6 @@ CONTADOR_SUBTRAI:
     JZ RETURN_CONTADOR
     SUB R11, 1
     JMP TRANSFORMA_DECIMAL
-=======
-CMP R11, R5 ; vai verificar se o contador esta no limite
-JZ RETURN_CONTADOR
-CMP R6, R0 ; caso a tecla premida seja a 4 ele vai incrementar o contador
-JZ CONTADOR_SOMA
-CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador
-JZ CONTADOR_SUBTRAI
-JMP CICLO_CONTADOR
-UPDATE_DISPLAY:
-    MOV [R3], R11
-    JMP CICLO_CONTADOR
-TRANSFORMA_DECIMAL:
-    ;
-    ;
-    ;
-    JMP UPDATE_DISPLAY
-CONTADOR_SOMA:
-    ADD R11, 1
-    JMP TRANSFORMA_DECIMAL
-CONTADOR_SUBTRAI:
-    SUB R11, 1
-    JMP TRANSFORMA_DECIMAL
-
->>>>>>> bad4609fb8d1398b3afca6ec6373eac368a1967b
 RETURN_CONTADOR:
 POP R7
 POP R6
@@ -413,8 +375,4 @@ TECLADO_RET:
     POP R8
     RET
 FIM:
-<<<<<<< HEAD
 	JMP FIM
-=======
-	JMP FIM
->>>>>>> bad4609fb8d1398b3afca6ec6373eac368a1967b
