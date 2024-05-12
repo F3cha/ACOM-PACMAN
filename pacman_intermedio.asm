@@ -72,25 +72,25 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
     WORD 0						; inicializado. O 1.º end. de retorno será
 						; armazenado em 11FEH (1200H-2)
 							
-DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
-	WORD 16
-	WORD 30
-	WORD 4H
-	WORD 4H
+DEF_FANTASMA:			    ; tabela que define o fantasma
+	WORD 16					; linha de spawn do fantasma
+	WORD 0					; coluna de spawn do fantasma
+	WORD 4H					; largura do fantasma
+	WORD 4H					; altura do fantasma
 	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
 
- DEF_PACMAN_PARADO:
-	WORD 16
-	WORD 40
-	WORD 4H
-	WORD 5H
+ DEF_PACMAN_PARADO:			; tabela que define o pacman parado
+	WORD 16					; linha de spawn do pacman parado
+	WORD 40					; coluna de spawn do pacman parado
+	WORD 4H					; largura do do pacman parado
+	WORD 5H					; altura do pacman parado
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 
- DEF_PACMAN_ANDAR:
-	WORD 16
-	WORD 20
-	WORD 4H
-	WORD 5H
+ DEF_PACMAN_ANDAR:			; tabela que define o pacman a andar
+	WORD 16					; linha de spawn do pacman parado
+	WORD 60					; coluna de spawn do pacman parado
+	WORD 4H					; largura do do pacman parado
+	WORD 5H					; altura do pacman parado
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 
 ; *********************************************************************************
@@ -187,24 +187,24 @@ escreve_pixel:
 ; VERIFICA_INPUT- Vai reagir a tecla pressionada
 ; **********************************************************************
 VERIFICA_INPUT:
-    MOV R2, TECLA_E
+    MOV R2, TECLA_E					; compara o input atual com a tecla E para saber se termina programa ou não	
     CMP R0, R2
     JZ FIM
 
-    MOV R2, TECLA_C
+    MOV R2, TECLA_C					; compara o input atual com a tecla C para emitir o som
     CMP R0, R2
     JZ EMITIR_1_SOM
 
-    MOV R2, TECLA_4
+    MOV R2, TECLA_4					; compara o input atual com a tecla 4 para iniciar a funcao do contador
     CMP R0, R2
     JZ CHAMAR_CALL_CONTADOR
 
-    MOV R2, TECLA_6
+    MOV R2, TECLA_6					; compara o input atual com a tecla 6 para iniciar a funcao do contador
     CMP R0, R2
     JZ CHAMAR_CALL_CONTADOR
-    JMP inicio
+    JMP inicio						; caso nao seja nenhum dos inputs valido, volta ao ciclo inicial
 
-    CHAMAR_CALL_CONTADOR:
+    CHAMAR_CALL_CONTADOR:	
     CALL CALL_CONTADOR
     JMP inicio
 EMITIR_1_SOM:
