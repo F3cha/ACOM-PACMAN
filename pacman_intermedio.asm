@@ -81,14 +81,14 @@ DEF_FANTASMA:			    ; tabela que define o fantasma
 
  DEF_PACMAN_PARADO:			; tabela que define o pacman parado
 	WORD 16					; linha de spawn do pacman parado
-	WORD 40					; coluna de spawn do pacman parado
+	WORD 60					; coluna de spawn do pacman parado
 	WORD 4H					; largura do do pacman parado
 	WORD 5H					; altura do pacman parado
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 
  DEF_PACMAN_ANDAR:			; tabela que define o pacman a andar
 	WORD 16					; linha de spawn do pacman parado
-	WORD 60					; coluna de spawn do pacman parado
+	WORD 30					; coluna de spawn do pacman parado
 	WORD 4H					; largura do do pacman parado
 	WORD 5H					; altura do pacman parado
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
