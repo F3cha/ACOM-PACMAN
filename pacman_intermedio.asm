@@ -19,7 +19,7 @@ LINHA EQU 16         ; linha do boneco (a meio do ecrã))
 COLUNA EQU 30         ; coluna do boneco (a meio do ecrã)
 
 LARGURA	EQU	4		   ; largura do fanstama
-ALTURA EQU 4          ; altura do fanstasma
+ALTURA  EQU 4          ; altura do fanstasma
 COR_PIXEL EQU 0FF00H	   ; cor do pixel interior: verde em ARG
 
 ; --- Colors --- ;
@@ -52,16 +52,22 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
 						; armazenado em 11FEH (1200H-2)
 							
 DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
+	WORD 16
+	WORD 30
 	WORD 4H
 	WORD 4H
 	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
  
  DEF_PACMAN_PARADO:
+	WORD 16
+	WORD 40
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 	
  DEF_PACMAN_ANDAR:
+	WORD 16
+	WORD 20
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
@@ -77,11 +83,19 @@ inicio:
 	MOV  [SELECIONA_FUNDO], R1
 	MOV	 R1, 0			    ; cenário de fundo número 0
 	
-	MOV R1, LINHA			; linha de spawn do fantasma
-	MOV R2, COLUNA		    ; coluna de spawn do fantasma
-	MOV R3, DEF_PACMAN_PARADO
-	
+	MOV R1, DEF_PACMAN_PARADO
 	CALL criar_boneco
+	MOV R1, 0
+	
+	MOV R1, DEF_PACMAN_ANDAR
+	CALL criar_boneco
+	MOV R1, 0
+	
+	MOV R1, DEF_FANTASMA
+	CALL criar_boneco
+	MOV R1, 0
+	
+	JMP fim
 
 ; **********************************************************************
 ; DESENHA_BONECO - Desenha um fanstasma na linha e coluna indicadas
@@ -98,39 +112,48 @@ criar_boneco:
 	PUSH R4
 	PUSH R5
 	PUSH R6
-
-	MOV	R4, [R3]			; obtém a largura do fantasma
-	ADD R3, 2
-	MOV R5, [R3]			; obtém a altura do fantasma
-	ADD R3, 2
+	PUSH R7
+	
+	MOV R2, [R1]
+	ADD R1, 2
+	MOV R3, [R1]
+	ADD R1, 2
+	MOV	R4, [R1]            ; obtém a largura do fantasma
+	MOV R7, [R1]
+	ADD R1, 2
+	MOV R5, [R1]			; obtém a altura do fantasma
+	ADD R1, 2
 	
 desenha_boneco:
-	MOV R6, [R3]
+	MOV R6, [R1]
 	CALL escreve_pixel
-	ADD R3, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
-    ADD R2, 1          ; próxima coluna
+	ADD R1, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD R3, 1          ; próxima coluna
     SUB R4, 1			; menos uma coluna para tratar
     JNZ desenha_boneco    ; continua até percorrer toda a largura do objeto
-	MOV R4, LARGURA
+	MOV R4, R7
 	SUB R5, 1
 	JNZ muda_linhas
+	POP R7
+	POP R6
 	POP	R5
 	POP	R4
 	POP	R3
 	POP	R2
-	JMP fim
+	POP R1
 	RET
 	
 muda_linhas:
-	ADD R1, 1
-	MOV R2, COLUNA
+	ADD R2, 1
+	SUB R3, LARGURA
 	JMP desenha_boneco
 
 escreve_pixel:
-	MOV [DEFINE_LINHA], R1		; seleciona a linha
-	MOV [DEFINE_COLUNA], R2		; seleciona a coluna
+	MOV [DEFINE_LINHA], R2		; seleciona a linha
+	MOV [DEFINE_COLUNA], R3		; seleciona a coluna
 	MOV [DEFINE_PIXEL], R6		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
+
 		
 fim:
 	JMP fim
