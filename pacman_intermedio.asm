@@ -54,7 +54,7 @@ TECLA_E EQU 0084H; Terminar o Jogo
 TECLA_F EQU 0088H; sem efeito
 
 ; --- SOM --- ;
-EMITIR_SOM EQU 6044H ; endereço do comando para emitir um som
+EMITIR_SOM EQU 605AH ; endereço do comando para emitir um som
 
 ; --- Display --- ;
 DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
