@@ -242,7 +242,7 @@ JNZ RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
 
 CMP R6, R0 ; caso a tecla premida seja a 4 ele vai incrementar o contador
 JZ CONTADOR_SOMA
-CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador
+CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador.
 JZ CONTADOR_SUBTRAI
 JMP CICLO_CONTADOR
 UPDATE_DISPLAY:
