@@ -74,25 +74,25 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
 							
 DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 	WORD 16
-	WORD 0
+	WORD 30
 	WORD 4H
 	WORD 4H
 	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
- 
+
  DEF_PACMAN_PARADO:
 	WORD 16
-	WORD 60
+	WORD 40
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
-	
+
  DEF_PACMAN_ANDAR:
 	WORD 16
-	WORD 30
+	WORD 20
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
-	
+
 ; *********************************************************************************
 ; * Programa
 ; *********************************************************************************
@@ -111,23 +111,18 @@ inicio:
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
 	CALL criar_boneco
 	MOV R1, 0
-	
+
 	MOV R1, DEF_PACMAN_ANDAR		; chama funcao cria_boneco com argumento o pacman a andar
 	CALL criar_boneco
 	MOV R1, 0
-	
+
 	MOV R1, DEF_FANTASMA            ; chama funcao cria_boneco com argumento o fantasma
 	CALL criar_boneco
 	MOV R1, 0
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
-<<<<<<< HEAD
 	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
 	JZ inicio
-=======
-	CMP R0, R2
-	JZ Movimento
->>>>>>> origin/main
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
 	INPUT_VERIFICADO: MOV R2, R0; vai guardar a ultima tecla pressionada
@@ -136,10 +131,10 @@ inicio:
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
 ;			       com a forma e cor definidas na tabela indicada.
-; Argumentos:   R1 - linha
-;               R2 - coluna
+; Argumentos:   R1 - linha do boneco
+;               R2 - coluna do boneco
 ;               R3 - tabela que define o boneco
-; **********************************************************************	
+; **********************************************************************
 criar_boneco:
 	PUSH R1
 	PUSH R2
@@ -148,7 +143,7 @@ criar_boneco:
 	PUSH R5
 	PUSH R6
 	PUSH R7
-	
+
 	MOV R2, [R1]			; obtém a linha onde será desenhado o boneco
 	ADD R1, 2
 	MOV R3, [R1]			; obtém a coluna onde será desenhado o boneco
@@ -158,15 +153,15 @@ criar_boneco:
 	ADD R1, 2
 	MOV R5, [R1]			; obtém a altura do boneco
 	ADD R1, 2
-	
+
 desenha_boneco:
 	MOV R6, [R1]			; obtém a cor do proximo pixel
-	CALL escreve_pixel	
+	CALL escreve_pixel
 	ADD R1, 2				; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD R3, 1          		; próxima coluna
     SUB R4, 1				; menos uma coluna para tratar
     JNZ desenha_boneco    	; continua até percorrer toda a largura do objeto
-	MOV R4, R7				
+	MOV R4, R7
 	SUB R5, 1
 	JNZ muda_linhas			; muda para a proxima linha
 	POP R7
@@ -177,7 +172,7 @@ desenha_boneco:
 	POP	R2
 	POP R1
 	RET						; termina o desenho
-	
+
 muda_linhas:
 	ADD R2, 1				; muda para a proxima linha
 	SUB R3, R7				; volta a escrever no inicio da linha
@@ -201,6 +196,10 @@ VERIFICA_INPUT:
     JZ EMITIR_1_SOM
 
     MOV R2, TECLA_4
+    CMP R0, R2
+    JZ CHAMAR_CALL_CONTADOR
+
+    MOV R2, TECLA_6
     CMP R0, R2
     JZ CHAMAR_CALL_CONTADOR
     JMP inicio
@@ -239,8 +238,7 @@ MOV R1, R0
 CALL CHAMA_TECLADO
 CMP R0, R1 ; Vai verificar se a tecla ainda esta premida
 JNZ RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
-CMP R11, R5 ; vai verificar se o contador esta no limite
-JZ RETURN_CONTADOR
+
 CMP R6, R0 ; caso a tecla premida seja a 4 ele vai incrementar o contador
 JZ CONTADOR_SOMA
 CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador
@@ -255,9 +253,13 @@ TRANSFORMA_DECIMAL:
     ;
     JMP UPDATE_DISPLAY
 CONTADOR_SOMA:
+    CMP R11, R5 ; vai verificar se o contador esta no limite
+    JZ RETURN_CONTADOR
     ADD R11, 1
     JMP TRANSFORMA_DECIMAL
 CONTADOR_SUBTRAI:
+    CMP R11, 0 ; vai verificar se o contador esta no limite
+    JZ RETURN_CONTADOR
     SUB R11, 1
     JMP TRANSFORMA_DECIMAL
 
