@@ -34,7 +34,7 @@ BLUE		EQU 0F026H
 MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocupar
 MAX_COLUNA EQU 63        ; número da coluna mais à direita que o objeto pode ocupar
 ATRASO EQU 400H	   ; atraso para limitar a velocidade de movimento do boneco
-
+CEM EQU 0064H
 ; --- Teclas --- ;
 TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
 TECLA_1 EQU 0012H; Movimento para cima
@@ -121,11 +121,16 @@ inicio:
 	MOV R1, 0
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
+<<<<<<< HEAD
+	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
+	JZ inicio
+=======
 	CMP R0, R2
 	JZ Movimento
+>>>>>>> origin/main
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
-	INPUT_VERIFICADO: MOV R2, R0
+	INPUT_VERIFICADO: MOV R2, R0; vai guardar a ultima tecla pressionada
 	JMP inicio
 
 ; **********************************************************************
@@ -189,20 +194,82 @@ escreve_pixel:
 VERIFICA_INPUT:
     MOV R2, TECLA_E
     CMP R0, R2
-    JZ fim
+    JZ FIM
 
     MOV R2, TECLA_C
     CMP R0, R2
     JZ EMITIR_1_SOM
+
+    MOV R2, TECLA_4
+    CMP R0, R2
+    JZ CHAMAR_CALL_CONTADOR
     JMP inicio
 
-
+    CHAMAR_CALL_CONTADOR:
+    CALL CALL_CONTADOR
+    JMP inicio
 EMITIR_1_SOM:
     MOV R9, 0
     MOV [EMITIR_SOM], R9
     JMP Movimento
 
+; **********************************************************************
+; CALL_CONTADOR -
+; R3- Endereco do display
+; R4- Valor em decimal
+; R5- Valor 100
+; R6- Endereco da tecla 4
+; R7- Endereco da tecla 6
+; R11- Valor do contador
+; **********************************************************************
+CALL_CONTADOR:
+PUSH R1
+PUSH R2
+PUSH R3
+PUSH R4
+PUSH R5
+PUSH R6
+PUSH R7
+MOV R5, CEM
+MOV R3, DISPLAY ; R3 endereco de display
+MOV R6, TECLA_4
+MOV R7, TECLA_6
+CICLO_CONTADOR:
+MOV R1, R0
+CALL CHAMA_TECLADO
+CMP R0, R1 ; Vai verificar se a tecla ainda esta premida
+JNZ RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
+CMP R11, R5 ; vai verificar se o contador esta no limite
+JZ RETURN_CONTADOR
+CMP R6, R0 ; caso a tecla premida seja a 4 ele vai incrementar o contador
+JZ CONTADOR_SOMA
+CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador
+JZ CONTADOR_SUBTRAI
+JMP CICLO_CONTADOR
+UPDATE_DISPLAY:
+    MOV [R3], R11
+    JMP CICLO_CONTADOR
+TRANSFORMA_DECIMAL:
+    ;
+    ;
+    ;
+    JMP UPDATE_DISPLAY
+CONTADOR_SOMA:
+    ADD R11, 1
+    JMP TRANSFORMA_DECIMAL
+CONTADOR_SUBTRAI:
+    SUB R11, 1
+    JMP TRANSFORMA_DECIMAL
 
+RETURN_CONTADOR:
+POP R7
+POP R6
+POP R5
+POP R4
+POP R3
+POP R2
+POP R1
+RET
 ; **********************************************************************
 ; CHAMA_TECLADO - Vai fazer um varrimento das teclas e guardar em R0
 ;
@@ -226,10 +293,10 @@ CHAMA_TECLADO:
     PUSH R8
     PUSH R9
     PUSH R10
-    PUSH R11
+    PUSH R7
     MOV R10, 8 ;BIT FLAG a representar a linha atual
     MOV R8, SET_KEY_LIN
-    MOV R11, MASCARA
+    MOV R7, MASCARA
 
 TECLADO_SHIFT_LINHA:
 ;Vai percorrer as quatro linhas e apos isso vai dar retun
@@ -239,7 +306,7 @@ TECLADO_SHIFT_LINHA:
     MOVB [R8], R10
     MOV R9, GET_KEY_COL
     MOVB R9, [R9]
-    AND R9, R11
+    AND R9, R7
     CMP R9, 0 ; se existir algum input ele vai saltar para codificar a tecla
     JNZ TECLADO_CODIFICAR
     SHR R10, 1
@@ -254,10 +321,10 @@ TECLADO_CODIFICAR:
     OR R0, R9; vai fazer a OR para guardar o valor da coluna
 
 TECLADO_RET:
-    POP R11
+    POP R7
     POP R10
     POP R9
     POP R8
     RET
-fim:
-	JMP fim
+FIM:
+	JMP FIM
