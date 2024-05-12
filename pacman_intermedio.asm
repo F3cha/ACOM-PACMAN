@@ -1,11 +1,12 @@
-; *********************************************************************************
-; * IST-UL
-; * Modulo:    pacman_intermedio.asm
-; * Descrição: Este programa tem como objetivo ilustrar fantasmas no ecrã.
-; *********************************************************************************
+; ***************************************************************************************
+; * Projeto ACom 2024 - PACMAN
+; * Grupo: 2
+; * Nomes: Goncalo Martins (110017), AFonso Freire (110756), Eduardo Proenca (110741)
+; *
+; ***************************************************************************************
 
 ; *********************************************************************************
-; * Constantes
+; * Constantes Globais
 ; *********************************************************************************
 
 DEFINE_LINHA    EQU 600AH      ; endereço do comando para definir a linha
@@ -29,19 +30,43 @@ PINK		EQU 0FF0FH
 PURPLE		EQU 0F73AH
 BLUE		EQU 0F026H
 
+; --- Limites --- ;
 MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocupar
 MAX_COLUNA EQU 63        ; número da coluna mais à direita que o objeto pode ocupar
 ATRASO EQU 400H	   ; atraso para limitar a velocidade de movimento do boneco
 
+; --- Teclas --- ;
+TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
+TECLA_1 EQU 0012H; Movimento para cima
+TECLA_2 EQU 0014H; Movimento na diagonal superior direita
+TECLA_3 EQU 0018H; sem efeito
+TECLA_4 EQU 0021H; Movimento para a esquerda
+TECLA_5 EQU 0022H; sem efeito
+TECLA_6 EQU 0024H; Movimento para a direita
+TECLA_7 EQU 0028H; sem efeito
+TECLA_8 EQU 0041H; Movimento na diagonal inferior esquerda
+TECLA_9 EQU 0042H; Movimento para baixo
+TECLA_A EQU 0044H; Movimento na diagonal inferior direita
+TECLA_B EQU 0048H; sem efeito
+TECLA_C EQU 0081H; Comecar o jogo
+TECLA_D EQU 0082H; Pausar o Jogo/ Continuar o jogo
+TECLA_E EQU 0084H; Terminar o Jogo
+TECLA_F EQU 0088H; sem efeito
+
+; --- Display --- ;
+DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
+
+; --- Fantasmas --- ;
+FANTASMA EQU 4; 4 fantasmas
+
 ; *********************************************************************************
 ; * DATA
 ; *********************************************************************************
-	PLACE 1000H
+PLACE 1000H
 pilha:
 	STACK 100H			; espaço reservado para a pilha 
-						; (200H bytes, pois são 100H words)
-SP_inicial:				; este é o endereço (1200H) com que o SP deve ser 
-						; inicializado. O 1.º end. de retorno será 
+SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
+    WORD 0						; inicializado. O 1.º end. de retorno será
 						; armazenado em 11FEH (1200H-2)
 							
 DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
@@ -66,16 +91,19 @@ DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 	
 ; *********************************************************************************
-; * Código
+; * Programa
 ; *********************************************************************************
-    PLACE   0                     ; o código tem de começar em 0000H
+ ; Registos reservados:
+ ; R0 - Valor do teclado
+
+ PLACE   0                     ; o código tem de começar em 0000H
 inicio:
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
-	MOV R2, 0084H
+
 	
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
 	CALL criar_boneco
@@ -89,8 +117,8 @@ inicio:
 	CALL criar_boneco
 	MOV R1, 0
 	
-	CALL CALL_VERIFICA_REP			; chama funcao teclado ??
-
+	CALL CALL_VERIFICA_REP			; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
+    MOV R2, TECLA_E
     MOV R3, 0FFH
 	AND R0, R3
 	CMP R0, R2
@@ -213,9 +241,9 @@ TECLADO_SEM_INPUT:
     MOV R0, 0
     JMP TECLADO_RET
 TECLADO_CODIFICAR:
-    MOV R0, R10
-    SHL R0, 4
-    OR R0, R9
+    MOV R0, R10; vai passar o numero da linha para o R0
+    SHL R0, 4; e vai dar shift para a esquerda para guardar o valor da linha
+    OR R0, R9; vai fazer a OR para guardar o valor da coluna
 
 TECLADO_RET:
     POP R11
