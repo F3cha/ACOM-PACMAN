@@ -77,7 +77,7 @@ DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 	WORD 0
 	WORD 4H
 	WORD 4H
-	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
+	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN
  
  DEF_PACMAN_PARADO:
 	WORD 16
