@@ -100,15 +100,14 @@ DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
  ; R0 - Valor do teclado
 
  PLACE   0                     ; o código tem de começar em 0000H
-inicio:
+iniciar:
     MOV R2, 0
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
-
-	
+inicio:
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
 	CALL criar_boneco
 	MOV R1, 0
