@@ -53,6 +53,9 @@ TECLA_D EQU 0082H; Pausar o Jogo/ Continuar o jogo
 TECLA_E EQU 0084H; Terminar o Jogo
 TECLA_F EQU 0088H; sem efeito
 
+; --- SOM --- ;
+EMITIR_SOM EQU 6044H ; endereço do comando para emitir um som
+
 ; --- Display --- ;
 DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
 
@@ -98,6 +101,7 @@ DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 
  PLACE   0                     ; o código tem de começar em 0000H
 inicio:
+    MOV R2, 0
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
@@ -116,13 +120,13 @@ inicio:
 	MOV R1, DEF_FANTASMA            ; chama funcao cria_boneco com argumento o fantasma
 	CALL criar_boneco
 	MOV R1, 0
-	
-	CALL CALL_VERIFICA_REP			; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
-    MOV R2, TECLA_E
-    MOV R3, 0FFH
-	AND R0, R3
+	Movimento:
+	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
 	CMP R0, R2
-	JZ fim
+	JZ Movimento
+	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
+	JNZ VERIFICA_INPUT
+	INPUT_VERIFICADO: MOV R2, R0
 	JMP inicio
 
 ; **********************************************************************
@@ -180,9 +184,28 @@ escreve_pixel:
 	MOV [DEFINE_COLUNA], R3		; seleciona a coluna
 	MOV [DEFINE_PIXEL], R6		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
+; **********************************************************************
+; VERIFICA_INPUT- Vai reagir a tecla pressionada
+; **********************************************************************
+VERIFICA_INPUT:
+    MOV R2, TECLA_E
+    CMP R0, R2
+    JZ fim
+
+    MOV R2, TECLA_C
+    CMP R0, R2
+    JZ EMITIR_1_SOM
+    JMP inicio
+
+
+EMITIR_1_SOM:
+    MOV R9, 0
+    MOV [EMITIR_SOM], R9
+    JMP Movimento
+
 
 ; **********************************************************************
-; CALL_VERIFICA_REP - Vai fazer um varrimento das teclas e guardar em R0, e caso o utilizador esteja a premir a tecla, Ira guardar no 9 bit do R0, 1
+; CHAMA_TECLADO - Vai fazer um varrimento das teclas e guardar em R0
 ;
 ; Argumento : R0 - valor a ser retornado
 ; "0" - 0011H "1" - 0012H "2" - 0014H "3" - 0018H
@@ -199,21 +222,7 @@ MASCARA	EQU	0FH     ; mask to isolate the last 4 bits of the keyboard columns in
 ; R9  - BIT FLAG a representar a coluna atual
 ; R10 - Valor temporario
 
-CALL_VERIFICA_REP:; Vai chamar 2 vezes a funcao chama_teclado para verificar esta a segurar a tecla
-    PUSH R1
-    PUSH R2
-    MOV R2, 0100H
-    CALL CHAMA_TECLADO
-    MOV R1,R0; vai fazer a copia do input para comparacao
-    CALL CHAMA_TECLADO
-    CMP R1,R0; caso a tecla nao esteja a ser premida ele vai saltar para Teclado_rep
-    JNZ TECLADO_REp
-    OR R0, R2 ; caso esteja a ser premida vai setar o 9 bit a 1
 
-TECLADO_REp:
-    POP R2 ; vai libertar os registos e dar return
-    POP R1
-    RET
 CHAMA_TECLADO:
     PUSH R8
     PUSH R9
