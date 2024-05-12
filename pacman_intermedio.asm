@@ -77,7 +77,7 @@ DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 	WORD 0
 	WORD 4H
 	WORD 4H
-	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN
+	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
  
  DEF_PACMAN_PARADO:
 	WORD 16
@@ -122,11 +122,7 @@ inicio:
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
 	CMP R0, R2
-<<<<<<< HEAD
 	JZ Movimento
-=======
-	JZ inicio
->>>>>>> 6ec8d4778969c398155f41baf13e23e0d9e59b43
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
 	INPUT_VERIFICADO: MOV R2, R0
