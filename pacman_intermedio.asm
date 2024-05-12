@@ -1,11 +1,12 @@
-; *********************************************************************************
-; * IST-UL
-; * Modulo:    pacman_intermedio.asm
-; * Descrição: Este programa tem como objetivo ilustrar fantasmas no ecrã.
-; *********************************************************************************
+; ***************************************************************************************
+; * Projeto ACom 2024 - PACMAN
+; * Grupo: 2
+; * Nomes: Goncalo Martins (110017), AFonso Freire (110756), Eduardo Proenca (110741)
+; *
+; ***************************************************************************************
 
 ; *********************************************************************************
-; * Constantes
+; * Constantes Globais
 ; *********************************************************************************
 
 DEFINE_LINHA    EQU 600AH      ; endereço do comando para definir a linha
@@ -29,53 +30,84 @@ PINK		EQU 0FF0FH
 PURPLE		EQU 0F73AH
 BLUE		EQU 0F026H
 
+; --- Limites --- ;
 MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocupar
 MAX_COLUNA EQU 63        ; número da coluna mais à direita que o objeto pode ocupar
 ATRASO EQU 400H	   ; atraso para limitar a velocidade de movimento do boneco
 
+; --- Teclas --- ;
+TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
+TECLA_1 EQU 0012H; Movimento para cima
+TECLA_2 EQU 0014H; Movimento na diagonal superior direita
+TECLA_3 EQU 0018H; sem efeito
+TECLA_4 EQU 0021H; Movimento para a esquerda
+TECLA_5 EQU 0022H; sem efeito
+TECLA_6 EQU 0024H; Movimento para a direita
+TECLA_7 EQU 0028H; sem efeito
+TECLA_8 EQU 0041H; Movimento na diagonal inferior esquerda
+TECLA_9 EQU 0042H; Movimento para baixo
+TECLA_A EQU 0044H; Movimento na diagonal inferior direita
+TECLA_B EQU 0048H; sem efeito
+TECLA_C EQU 0081H; Comecar o jogo
+TECLA_D EQU 0082H; Pausar o Jogo/ Continuar o jogo
+TECLA_E EQU 0084H; Terminar o Jogo
+TECLA_F EQU 0088H; sem efeito
+
+; --- SOM --- ;
+EMITIR_SOM EQU 605AH ; endereço do comando para emitir um som
+
+; --- Display --- ;
+DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
+
+; --- Fantasmas --- ;
+FANTASMA EQU 4; 4 fantasmas
+
 ; *********************************************************************************
 ; * DATA
 ; *********************************************************************************
-	PLACE 1000H
+PLACE 1000H
 pilha:
 	STACK 100H			; espaço reservado para a pilha 
-						; (200H bytes, pois são 100H words)
-SP_inicial:				; este é o endereço (1200H) com que o SP deve ser 
-						; inicializado. O 1.º end. de retorno será 
+SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
+    WORD 0						; inicializado. O 1.º end. de retorno será
 						; armazenado em 11FEH (1200H-2)
 							
 DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
 	WORD 16
-	WORD 30
+	WORD 0
 	WORD 4H
 	WORD 4H
 	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
  
  DEF_PACMAN_PARADO:
 	WORD 16
-	WORD 40
+	WORD 60
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 	
  DEF_PACMAN_ANDAR:
 	WORD 16
-	WORD 20
+	WORD 30
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 	
 ; *********************************************************************************
-; * Código
+; * Programa
 ; *********************************************************************************
-    PLACE   0                     ; o código tem de começar em 0000H
-inicio:
+ ; Registos reservados:
+ ; R0 - Valor do teclado
+
+ PLACE   0                     ; o código tem de começar em 0000H
+iniciar:
+    MOV R2, 0
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
-	
+inicio:
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
 	CALL criar_boneco
 	MOV R1, 0
@@ -87,11 +119,14 @@ inicio:
 	MOV R1, DEF_FANTASMA            ; chama funcao cria_boneco com argumento o fantasma
 	CALL criar_boneco
 	MOV R1, 0
-	
-	CALL CALL_VERIFICA_REP			; chama funcao teclado ??
-	
-	
-	JMP fim
+	Movimento:
+	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
+	CMP R0, R2
+	JZ Movimento
+	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
+	JNZ VERIFICA_INPUT
+	INPUT_VERIFICADO: MOV R2, R0
+	JMP inicio
 
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
@@ -148,9 +183,28 @@ escreve_pixel:
 	MOV [DEFINE_COLUNA], R3		; seleciona a coluna
 	MOV [DEFINE_PIXEL], R6		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
+; **********************************************************************
+; VERIFICA_INPUT- Vai reagir a tecla pressionada
+; **********************************************************************
+VERIFICA_INPUT:
+    MOV R2, TECLA_E
+    CMP R0, R2
+    JZ fim
+
+    MOV R2, TECLA_C
+    CMP R0, R2
+    JZ EMITIR_1_SOM
+    JMP inicio
+
+
+EMITIR_1_SOM:
+    MOV R9, 0
+    MOV [EMITIR_SOM], R9
+    JMP Movimento
+
 
 ; **********************************************************************
-; CALL_VERIFICA_REP - Vai fazer um varrimento das teclas e guardar em R0, e caso o utilizador esteja a premir a tecla, Ira guardar no 9 bit do R0, 1
+; CHAMA_TECLADO - Vai fazer um varrimento das teclas e guardar em R0
 ;
 ; Argumento : R0 - valor a ser retornado
 ; "0" - 0011H "1" - 0012H "2" - 0014H "3" - 0018H
@@ -167,21 +221,7 @@ MASCARA	EQU	0FH     ; mask to isolate the last 4 bits of the keyboard columns in
 ; R9  - BIT FLAG a representar a coluna atual
 ; R10 - Valor temporario
 
-CALL_VERIFICA_REP:; Vai chamar 2 vezes a funcao chama_teclado para verificar esta a segurar a tecla
-    PUSH R1
-    PUSH R2
-    MOV R2, 0100H
-    CALL CHAMA_TECLADO
-    MOV R1,R0; vai fazer a copia do input para comparacao
-    CALL CHAMA_TECLADO
-    CMP R1,R0; caso a tecla nao esteja a ser premida ele vai saltar para Teclado_rep
-    JNZ TECLADO_REp
-    OR R0, R2 ; caso esteja a ser premida vai setar o 9 bit a 1
 
-TECLADO_REp:
-    POP R2 ; vai libertar os registos e dar return
-    POP R1
-    RET
 CHAMA_TECLADO:
     PUSH R8
     PUSH R9
@@ -209,9 +249,9 @@ TECLADO_SEM_INPUT:
     MOV R0, 0
     JMP TECLADO_RET
 TECLADO_CODIFICAR:
-    MOV R0, R10
-    SHL R0, 4
-    OR R0, R9
+    MOV R0, R10; vai passar o numero da linha para o R0
+    SHL R0, 4; e vai dar shift para a esquerda para guardar o valor da linha
+    OR R0, R9; vai fazer a OR para guardar o valor da coluna
 
 TECLADO_RET:
     POP R11
