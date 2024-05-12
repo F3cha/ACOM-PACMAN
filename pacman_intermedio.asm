@@ -75,6 +75,7 @@ inicio:
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
+	MOV R2, 0084H
 	
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
 	CALL criar_boneco
@@ -89,9 +90,12 @@ inicio:
 	MOV R1, 0
 	
 	CALL CALL_VERIFICA_REP			; chama funcao teclado ??
-	
-	
-	JMP fim
+
+    MOV R3, 0FFH
+	AND R0, R3
+	CMP R0, R2
+	JZ fim
+	JMP inicio
 
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
