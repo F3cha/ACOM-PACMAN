@@ -106,6 +106,7 @@ iniciar:
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
+	MOV  [DISPLAY], 0				; colocar display a zero
 	MOV	 R1, 0
 inicio:
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
@@ -248,9 +249,55 @@ UPDATE_DISPLAY:
     MOV [R3], R11
     JMP CICLO_CONTADOR
 TRANSFORMA_DECIMAL:
-    ;
-    ;
-    ;
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+
+    MOV R1, 100
+    CMP R11, R1
+    JZ  CASO_CEM        ; como o unico numero maior que 99 que o contador suporta e o 100
+                        ; foi criada esta rotina para escrever o 100, para nao ser necessario
+                        ; verificar se o numero era maior que 99, pois a passagem para decimal
+                        ; iria exigir uma rotina diferente dos numeros 10-99
+
+    MOV R1, 9
+    CMP R11, R1
+    JGE CONVERT            ; apenas os numeros maiores do que 9 sao diferentes de hexadecimal
+                        ; para decimal
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    JMP UPDATE_DISPLAY
+
+; passagem dos numeros de hexadecimal para decimal
+CONVERT:
+    MOV R1, R11
+    MOV R2, 10
+    DIV R1, R2
+    SHL R1, 4
+    MOV R2, R1
+
+    MOV R1, R11
+    MOV R3, 10
+    MOD R1, R3
+    MOV R3, R1
+
+    OR R2, R3
+    MOV R11, R2
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    JMP UPDATE_DISPLAY
+CASO_CEM:
+    MOV R11, 1
+    SHL R11, 8
+    POP R4
+    POP R3
+    POP R2
+    POP R1
     JMP UPDATE_DISPLAY
 CONTADOR_SOMA:
     CMP R11, R5 ; vai verificar se o contador esta no limite
@@ -262,7 +309,6 @@ CONTADOR_SUBTRAI:
     JZ RETURN_CONTADOR
     SUB R11, 1
     JMP TRANSFORMA_DECIMAL
-
 RETURN_CONTADOR:
 POP R7
 POP R6
