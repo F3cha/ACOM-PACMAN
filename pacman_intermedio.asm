@@ -231,7 +231,7 @@ PUSH R5
 PUSH R6
 PUSH R7
 MOV R5, CEM
-MOV R3, DISPLAY ; R3 endereco de display
+MOV R3, DISPLAY ; R3 endereco de display :)
 MOV R6, TECLA_4
 MOV R7, TECLA_6
 CICLO_CONTADOR:
