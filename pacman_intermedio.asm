@@ -17,10 +17,9 @@ SELECIONA_FUNDO EQU 6042H      ; ender eço do comando para selecionar uma image
 
 LINHA EQU 16         ; linha do boneco (a meio do ecrã))
 COLUNA EQU 30         ; coluna do boneco (a meio do ecrã)
-MASCARA 0FH
 
 LARGURA	EQU	4		   ; largura do fanstama
-ALTURA  EQU 4          ; altura do fanstasma
+ALTURA EQU 4          ; altura do fanstasma
 COR_PIXEL EQU 0FF00H	   ; cor do pixel interior: verde em ARG
 
 ; --- Colors --- ;
@@ -53,22 +52,16 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
 						; armazenado em 11FEH (1200H-2)
 							
 DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
-	WORD 16
-	WORD 30
 	WORD 4H
 	WORD 4H
 	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
  
  DEF_PACMAN_PARADO:
-	WORD 16
-	WORD 40
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 	
  DEF_PACMAN_ANDAR:
-	WORD 16
-	WORD 20
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
@@ -84,19 +77,12 @@ inicio:
 	MOV  [SELECIONA_FUNDO], R1
 	MOV	 R1, 0			    ; cenário de fundo número 0
 	
-	MOV R1, DEF_PACMAN_PARADO
-	CALL criar_boneco
-	MOV R1, 0
+	MOV R1, LINHA			; linha de spawn do fantasma
+	MOV R2, COLUNA		    ; coluna de spawn do fantasma
+	MOV R3, DEF_PACMAN_PARADO
 	
-	MOV R1, DEF_PACMAN_ANDAR
 	CALL criar_boneco
-	MOV R1, 0
-	
-	MOV R1, DEF_FANTASMA
-	CALL criar_boneco
-	MOV R1, 0
-	
-	JMP fim
+	CALL CALL_VERIFICA_REP
 
 ; **********************************************************************
 ; DESENHA_BONECO - Desenha um fanstasma na linha e coluna indicadas
@@ -113,86 +99,114 @@ criar_boneco:
 	PUSH R4
 	PUSH R5
 	PUSH R6
-	PUSH R7
-	
-	MOV R2, [R1]
-	ADD R1, 2
-	MOV R3, [R1]
-	ADD R1, 2
-	MOV	R4, [R1]            ; obtém a largura do fantasma
-	MOV R7, [R1]
-	ADD R1, 2
-	MOV R5, [R1]			; obtém a altura do fantasma
-	ADD R1, 2
+
+	MOV	R4, [R3]			; obtém a largura do fantasma
+	ADD R3, 2
+	MOV R5, [R3]			; obtém a altura do fantasma
+	ADD R3, 2
 	
 desenha_boneco:
-	MOV R6, [R1]
+	MOV R6, [R3]
 	CALL escreve_pixel
-	ADD R1, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
-    ADD R3, 1          ; próxima coluna
+	ADD R3, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD R2, 1          ; próxima coluna
     SUB R4, 1			; menos uma coluna para tratar
     JNZ desenha_boneco    ; continua até percorrer toda a largura do objeto
-	MOV R4, R7
+	MOV R4, LARGURA
 	SUB R5, 1
 	JNZ muda_linhas
-	POP R7
-	POP R6
 	POP	R5
 	POP	R4
 	POP	R3
 	POP	R2
-	POP R1
+	JMP fim
 	RET
 	
 muda_linhas:
-	ADD R2, 1
-	SUB R3, LARGURA
+	ADD R1, 1
+	MOV R2, COLUNA
 	JMP desenha_boneco
 
 escreve_pixel:
-	MOV [DEFINE_LINHA], R2		; seleciona a linha
-	MOV [DEFINE_COLUNA], R3		; seleciona a coluna
+	MOV [DEFINE_LINHA], R1		; seleciona a linha
+	MOV [DEFINE_COLUNA], R2		; seleciona a coluna
 	MOV [DEFINE_PIXEL], R6		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
 
-<<<<<<< HEAD
-		
-=======
 ; **********************************************************************
-; Chama_Teclado - Vai fazer um varrimento das teclas e guardar em R0
+; CALL_VERIFICA_REP - Vai fazer um varrimento das teclas e guardar em R0, e caso o utilizador esteja a premir a tecla, Ira guardar no 9 bit do R0, 1
 ;
-; Argumento
-;
+; Argumento : R0 - valor a ser retornado
+; "0" - 0011H "1" - 0012H "2" - 0014H "3" - 0018H
+; "4" - 0021H "5" - 0022H "6" - 0024H "7" - 0028H
+; "8" - 0041H "9" - 0042H "A" - 0044H "B" - 0048H
+; "C" - 0081H "D" - 0082H "E" - 0084H "F" - 0088H
 ; **********************************************************************
 
-CHAMA_TECLADO:
+SET_KEY_LIN	EQU	0C000H	; Endereço do comando para definir a linha do teclado
+GET_KEY_COL	EQU	0E000H	; address of keyboard columns (PIN)
+MASCARA	EQU	0FH     ; mask to isolate the last 4 bits of the keyboard columns input
+
+; R8  - BIT flag a representar a linha atual
+; R9  - BIT FLAG a representar a coluna atual
+; R10 - Valor temporario
+
+CALL_VERIFICA_REP:; Vai chamar 2 vezes a funcao chama_teclado para verificar esta a segurar a tecla
     PUSH R1
     PUSH R2
-    PUSH R3
-    PUSH R4
-    MOV R1, 0010H
-    MOV R2, TEC_LINHA
-    MOV R3, TEC_COLUNA
-    MOV R4, MASCARA
-SEM_Tecla
-    CMP R1, 0
-    JZ FIM_TECLADO
-    SHR R1, 1
-    MOVB [R2], R1
-    MOVB R0, [R3]
-    AND R0, R4
-FIM_TECLADO
-    POP R4
-    POP R3
-    POP R2
+    MOV R2, 0100H
+    CALL CHAMA_TECLADO
+    MOV R1,R0; vai fazer a copia do input para comparacao
+    CALL CHAMA_TECLADO
+    CMP R1,R0; caso a tecla nao esteja a ser premida ele vai saltar para Teclado_rep
+    JNZ TECLADO_REp
+    OR R0, R2 ; caso esteja a ser premida vai setar o 9 bit a 1
+
+TECLADO_REp:
+    POP R2 ; vai libertar os registos e dar return
     POP R1
+    RET
+CHAMA_TECLADO:
+    PUSH R8
+    PUSH R9
+    PUSH R10
+    PUSH R11
+    MOV R10, 8 ;BIT FLAG a representar a linha atual
+    MOV R8, SET_KEY_LIN
+    MOV R11, MASCARA
+
+TECLADO_SHIFT_LINHA:
+;Vai percorrer as quatro linhas e apos isso vai dar retun
+;Vai percorrer as linhas e caso alguma coluna vai guardar
+    CMP R10,0
+    JZ TECLADO_SEM_INPUT
+    MOVB [R8], R10
+    MOV R9, GET_KEY_COL
+    MOVB R9, [R9]
+    AND R9, R11
+    CMP R9, 0 ; se existir algum input ele vai saltar para codificar a tecla
+    JNZ TECLADO_CODIFICAR
+    SHR R10, 1
+    JMP TECLADO_SHIFT_LINHA
+
+TECLADO_SEM_INPUT:
+    MOV R0, 0
+    JMP TECLADO_RET
+TECLADO_CODIFICAR:
+    MOV R0, R10
+    SHL R0, 4
+    OR R0, R9
+
+TECLADO_RET:
+    POP R11
+    POP R10
+    POP R9
+    POP R8
     RET
 
 
 
 
 
-
->>>>>>> 523789b41115410e4ace140ee516055ea991196b
 fim:
 	JMP fim
