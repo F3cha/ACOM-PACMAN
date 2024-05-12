@@ -15,6 +15,16 @@ APAGA_AVISO     EQU 6040H      ; endereço do comando para apagar o aviso de nen
 APAGA_ECRÃ      EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_FUNDO EQU 6042H      ; ender eço do comando para selecionar uma imagem de fundo
 
+<<<<<<< HEAD
+=======
+LINHA EQU 16         ; linha do boneco (a meio do ecrã))
+COLUNA EQU 30         ; coluna do boneco (a meio do ecrã)
+
+LARGURA	EQU	4		   ; largura do fanstama
+ALTURA EQU 4          ; altura do fanstasma
+COR_PIXEL EQU 0FF00H	   ; cor do pixel interior: verde em ARG
+
+>>>>>>> e1da0276d60e6f71fa1ca88864fd0955634b33cf
 ; --- Colors --- ;
 BLACK		EQU 0F000H
 GREY_L0		EQU 08888H
@@ -45,22 +55,16 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
 						; armazenado em 11FEH (1200H-2)
 							
 DEF_FANTASMA:			    ; tabela que define o boneco (cor, largura, pixels)
-	WORD 16
-	WORD 30
 	WORD 4H
 	WORD 4H
 	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
  
  DEF_PACMAN_PARADO:
-	WORD 16
-	WORD 40
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 	
  DEF_PACMAN_ANDAR:
-	WORD 16
-	WORD 20
 	WORD 4H
 	WORD 5H
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
@@ -76,6 +80,7 @@ inicio:
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
 	
+<<<<<<< HEAD
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
 	CALL criar_boneco
 	MOV R1, 0
@@ -92,6 +97,14 @@ inicio:
 	
 	
 	JMP fim
+=======
+	MOV R1, LINHA			; linha de spawn do fantasma
+	MOV R2, COLUNA		    ; coluna de spawn do fantasma
+	MOV R3, DEF_PACMAN_PARADO
+	
+	CALL criar_boneco
+	CALL CALL_VERIFICA_REP
+>>>>>>> e1da0276d60e6f71fa1ca88864fd0955634b33cf
 
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
@@ -107,6 +120,7 @@ criar_boneco:
 	PUSH R4
 	PUSH R5
 	PUSH R6
+<<<<<<< HEAD
 	PUSH R7
 	
 	MOV R2, [R1]			; obtém a linha onde será desenhado o boneco
@@ -131,21 +145,48 @@ desenha_boneco:
 	JNZ muda_linhas			; muda para a proxima linha
 	POP R7
 	POP R6
+=======
+
+	MOV	R4, [R3]			; obtém a largura do fantasma
+	ADD R3, 2
+	MOV R5, [R3]			; obtém a altura do fantasma
+	ADD R3, 2
+	
+desenha_boneco:
+	MOV R6, [R3]
+	CALL escreve_pixel
+	ADD R3, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD R2, 1          ; próxima coluna
+    SUB R4, 1			; menos uma coluna para tratar
+    JNZ desenha_boneco    ; continua até percorrer toda a largura do objeto
+	MOV R4, LARGURA
+	SUB R5, 1
+	JNZ muda_linhas
+>>>>>>> e1da0276d60e6f71fa1ca88864fd0955634b33cf
 	POP	R5
 	POP	R4
 	POP	R3
 	POP	R2
+<<<<<<< HEAD
 	POP R1
 	RET						; termina o desenho
 	
 muda_linhas:
 	ADD R2, 1				; muda para a proxima linha
 	SUB R3, R7				; volta a escrever no inicio da linha
+=======
+	JMP fim
+	RET
+	
+muda_linhas:
+	ADD R1, 1
+	MOV R2, COLUNA
+>>>>>>> e1da0276d60e6f71fa1ca88864fd0955634b33cf
 	JMP desenha_boneco
 
 escreve_pixel:
-	MOV [DEFINE_LINHA], R2		; seleciona a linha
-	MOV [DEFINE_COLUNA], R3		; seleciona a coluna
+	MOV [DEFINE_LINHA], R1		; seleciona a linha
+	MOV [DEFINE_COLUNA], R2		; seleciona a coluna
 	MOV [DEFINE_PIXEL], R6		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
 
@@ -190,6 +231,8 @@ CHAMA_TECLADO:
     MOV R10, 8 ;BIT FLAG a representar a linha atual
     MOV R8, SET_KEY_LIN
     MOV R11, MASCARA
+<<<<<<< HEAD
+=======
 
 TECLADO_SHIFT_LINHA:
 ;Vai percorrer as quatro linhas e apos isso vai dar retun
@@ -219,5 +262,40 @@ TECLADO_RET:
     POP R9
     POP R8
     RET
+>>>>>>> e1da0276d60e6f71fa1ca88864fd0955634b33cf
+
+TECLADO_SHIFT_LINHA:
+;Vai percorrer as quatro linhas e apos isso vai dar retun
+;Vai percorrer as linhas e caso alguma coluna vai guardar
+    CMP R10,0
+    JZ TECLADO_SEM_INPUT
+    MOVB [R8], R10
+    MOV R9, GET_KEY_COL
+    MOVB R9, [R9]
+    AND R9, R11
+    CMP R9, 0 ; se existir algum input ele vai saltar para codificar a tecla
+    JNZ TECLADO_CODIFICAR
+    SHR R10, 1
+    JMP TECLADO_SHIFT_LINHA
+
+TECLADO_SEM_INPUT:
+    MOV R0, 0
+    JMP TECLADO_RET
+TECLADO_CODIFICAR:
+    MOV R0, R10
+    SHL R0, 4
+    OR R0, R9
+
+<<<<<<< HEAD
+TECLADO_RET:
+    POP R11
+    POP R10
+    POP R9
+    POP R8
+    RET
+=======
+
+
+>>>>>>> e1da0276d60e6f71fa1ca88864fd0955634b33cf
 fim:
 	JMP fim
