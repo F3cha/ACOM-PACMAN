@@ -72,27 +72,43 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
     WORD 0						; inicializado. O 1.º end. de retorno será
 						; armazenado em 11FEH (1200H-2)
 							
-DEF_FANTASMA:			    ; tabela que define o fantasma
-	WORD 16					; linha de spawn do fantasma
-	WORD 0					; coluna de spawn do fantasma
+DEF_FANTASMA1:			    ; tabela que define o fantasma
 	WORD 4H					; largura do fantasma
 	WORD 4H					; altura do fantasma
-	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN		; # # #   as cores podem ser diferentes
+	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN
+	
+DEF_FANTASMA2:			    ; tabela que define o fantasma
+	WORD 4H					; largura do fantasma
+	WORD 4H					; altura do fantasma
+	WORD 0, RED, RED, 0, RED, RED, RED, RED, RED, RED, RED, RED, RED, 0, 0, RED
 
  DEF_PACMAN_PARADO:			; tabela que define o pacman parado
-	WORD 16					; linha de spawn do pacman parado
-	WORD 60					; coluna de spawn do pacman parado
 	WORD 4H					; largura do do pacman parado
 	WORD 5H					; altura do pacman parado
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 
  DEF_PACMAN_ANDAR:			; tabela que define o pacman a andar
-	WORD 16					; linha de spawn do pacman parado
-	WORD 30					; coluna de spawn do pacman parado
 	WORD 4H					; largura do do pacman parado
 	WORD 5H					; altura do pacman parado
 	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
 
+DEF_APAGAR_PACMAN:
+	WORD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+DEF_APAGAR_FANTASMA:
+	WORD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+DEF_CORDS_PACMAN_SPAWN:
+	WORD 16
+	WORD 30
+	
+DEF_CORDS_FANTASMA1_SPAWN:
+	WORD 16
+	WORD 0
+	
+DEF_CORDS_FANTASMA2_SPAWN:
+	WORD 16
+	WORD 60
 ; *********************************************************************************
 ; * Programa
 ; *********************************************************************************
@@ -109,16 +125,23 @@ iniciar:
 	MOV	 R1, 0
 inicio:
 	MOV R1, DEF_PACMAN_PARADO		; chama funcao cria_boneco com argumento o pacman parado
+	MOV R11, DEF_CORDS_PACMAN_SPAWN	; coordenadas para o pacman "spawnar"
 	CALL criar_boneco
 	MOV R1, 0
+	MOV R11, 0
 
-	MOV R1, DEF_PACMAN_ANDAR		; chama funcao cria_boneco com argumento o pacman a andar
+	MOV R1, DEF_FANTASMA1			    ; chama funcao cria_boneco com argumento o fanstasma verde
+	MOV R11, DEF_CORDS_FANTASMA1_SPAWN	; coordenadas para o pacman "spawnar"
+	CALL criar_boneco			
+	MOV R1, 0
+	MOV R11,0
+	
+	MOV R1, DEF_FANTASMA2               ; chama funcao cria_boneco com argumento o fantasma vermelho
+	MOV R11, DEF_CORDS_FANTASMA2_SPAWN	; coordenadas para o pacman "spawnar"
 	CALL criar_boneco
 	MOV R1, 0
-
-	MOV R1, DEF_FANTASMA            ; chama funcao cria_boneco com argumento o fantasma
-	CALL criar_boneco
-	MOV R1, 0
+	MOV R11,0
+	
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
 	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
@@ -144,10 +167,9 @@ criar_boneco:
 	PUSH R6
 	PUSH R7
 
-	MOV R2, [R1]			; obtém a linha onde será desenhado o boneco
-	ADD R1, 2
-	MOV R3, [R1]			; obtém a coluna onde será desenhado o boneco
-	ADD R1, 2
+	MOV R2, [R11]			; obtém a linha onde será desenhado o boneco
+	ADD R11, 2
+	MOV R3, [R11]			; obtém a coluna onde será desenhado o boneco
 	MOV	R4, [R1]            ; obtém a largura do boneco
 	MOV R7, [R1]			; guarda a largura do boneco
 	ADD R1, 2
@@ -190,7 +212,7 @@ VERIFICA_INPUT:
     MOV R2, TECLA_E					; compara o input atual com a tecla E para saber se termina programa ou não	
     CMP R0, R2
     JZ FIM
-
+	
     MOV R2, TECLA_C					; compara o input atual com a tecla C para emitir o som
     CMP R0, R2
     JZ EMITIR_1_SOM
