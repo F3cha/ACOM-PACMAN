@@ -96,12 +96,6 @@ DEF_REBUCADO:
     WORD BLACK, YELLOW, YELLOW, BLACK
     WORD BLACK, YELLOW, YELLOW, BLACK
     WORD 0, BLACK, BLACK, 0
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> fcc4b2649900da8830955d31a0aea12e0ff48441
 
  DEF_PACMAN_PARADO:			; tabela que define o pacman parado
 	BYTE 4					; largura do do pacman parado
@@ -113,24 +107,15 @@ DEF_REBUCADO:
 	BYTE 1, 1, 1, 1
 	BYTE 0, 1, 1, 0
 
-<<<<<<< HEAD
  DEF_PACMAN_DIREITA:		; tabela que define o pacman a andar
-=======
- DEF_PACMAN_ANDAR:			; tabela que define o pacman a andar
->>>>>>> fcc4b2649900da8830955d31a0aea12e0ff48441
 	BYTE 4					; largura do do pacman parado
 	BYTE 5					; altura do pacman parado
 	WORD YELLOW
 	BYTE 0, 1, 1, 0
 	BYTE 1, 1, 1, 1
 	BYTE 1, 0, 0, 0
-<<<<<<< HEAD
 	BYTE 1, 1, 1, 1
 	BYTE 0, 1, 1, 0
-=======
-	BYTE 1, 1, 1
-	BYTE 1, 0, 1, 1, 0
->>>>>>> fcc4b2649900da8830955d31a0aea12e0ff48441
 
 DEF_APAGAR_PACMAN:
 	BYTE 0, 0, 0, 0
