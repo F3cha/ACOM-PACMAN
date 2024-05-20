@@ -13,7 +13,7 @@ DEFINE_LINHA    EQU 600AH      ; endereço do comando para definir a linha
 DEFINE_COLUNA   EQU 600CH      ; endereço do comando para definir a coluna
 DEFINE_PIXEL    EQU 6012H      ; endereço do comando para escrever um pixel
 APAGA_AVISO     EQU 6040H      ; endereço do comando para apagar o aviso de nenhum cenário selecionado
-APAGA_ECRÃ      EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
+APAGA_ECRA     EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_FUNDO EQU 6042H      ; ender eço do comando para selecionar uma imagem de fundo
 
 ; --- Colors --- ;
@@ -69,7 +69,7 @@ PLACE 1000H
 pilha:
 	STACK 100H			; espaço reservado para a pilha 
 SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
-    WORD 0						; inicializado. O 1.º end. de retorno será
+    WORD 0				; inicializado. O 1.º end. de retorno será
 						; armazenado em 11FEH (1200H-2)
 							
 DEF_FANTASMA1:			    ; tabela que define o fantasma
@@ -179,7 +179,7 @@ iniciar:
     MOV R2, 0
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
-    MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+    MOV  [APAGA_ECRA], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
 inicio:
@@ -308,17 +308,17 @@ EMITIR_1_SOM:
 ; R11- Valor do contador
 ; **********************************************************************
 CALL_CONTADOR:
-PUSH R1
-PUSH R2
-PUSH R3
-PUSH R4
-PUSH R5
-PUSH R6
-PUSH R7
-MOV R5, CEM
-MOV R3, DISPLAY ; R3 endereco de display :)
-MOV R6, TECLA_4
-MOV R7, TECLA_6
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    PUSH R6
+    PUSH R7
+    MOV R5, CEM
+    MOV R3, DISPLAY ; R3 endereco de display :)
+    MOV R6, TECLA_4
+    MOV R7, TECLA_6
 CICLO_CONTADOR:
 MOV R1, R0
 CALL CHAMA_TECLADO
