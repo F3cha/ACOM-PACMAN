@@ -34,7 +34,8 @@ BLUE		EQU 0F026H
 MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocupar
 MAX_COLUNA EQU 63        ; número da coluna mais à direita que o objeto pode ocupar
 ATRASO EQU 400H	   ; atraso para limitar a velocidade de movimento do boneco
-CEM EQU 0064H
+CEM EQU 100H
+MILHAR EQU 5500H
 ; --- Teclas --- ;
 TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
 TECLA_1 EQU 0012H; Movimento para cima
@@ -329,7 +330,7 @@ PUSH R6
 PUSH R7
 PUSH R8
 PUSH R9
-MOV R5, CEM
+MOV R5, 100H
 MOV R3, DISPLAY ; R3 endereco de display :)
 MOV R6, TECLA_4
 MOV R7, TECLA_6
@@ -347,43 +348,54 @@ JMP CICLO_CONTADOR
 
 UPDATE_DISPLAY:
     MOV [R3], R11
-    JMP CICLO_CONTADOR
+	MOV R2, MILHAR
+	JMP DELAY
+DELAY:
+	DEC R2
+	CMP R2, 0
+	JNZ DELAY
+	JMP CICLO_CONTADOR
 
 TRANSFORMA_DECIMAL_UP:
-    MOV R8, 09AH
-	CMP R8, R11
-    MOV R8, 0AH
+	MOV R8, 09AH
+	CMP R11, R8
+	JZ E_100
+	MOV R8, 0AH
 	MOV R9, R11
-    AND R9, R8
-    CMP R9, R8
-    JNZ UPDATE_DISPLAY
-    ADD R11, 6H
-    JMP UPDATE_DISPLAY
+	AND R9, R8
+	CMP R9, R8
+	JNZ UPDATE_DISPLAY
+	ADD R11, 6H
+	JMP UPDATE_DISPLAY
+	
 
 E_100:
     MOV R11, 100H
     JMP UPDATE_DISPLAY
 
 TRANSFORMA_DECIMAL_DOWN:
-	MOV R8, 0FFH
-	CMP R11, R8
+    MOV R8, 0FFH
+	CMP R6, R8
 	JZ E_99
-    MOV R9, R11
-    AND R9, R8
-    CMP R9, R8
-    JNZ UPDATE_DISPLAY
-    SUB R11, 6H
-    JMP UPDATE_DISPLAY
+	MOV R8, 0FH
+	MOV R9, R11
+	AND R9, R8
+	CMP R9, R8
+	JNZ UPDATE_DISPLAY
+	SUB R11, 6H
+	JMP UPDATE_DISPLAY
 
 E_99:
     MOV R11, 99H
     JMP UPDATE_DISPLAY
+
 
 CONTADOR_SOMA:
     CMP R11, R5 ; vai verificar se o contador esta no limite
     JZ RETURN_CONTADOR
     INC R11
     JMP TRANSFORMA_DECIMAL_UP
+
 CONTADOR_SUBTRAI:
     CMP R11, 0 ; vai verificar se o contador esta no limite
     JZ RETURN_CONTADOR
