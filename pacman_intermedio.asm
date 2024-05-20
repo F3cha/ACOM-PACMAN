@@ -75,28 +75,49 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
 DEF_FANTASMA1:			    ; tabela que define o fantasma
 	WORD 4H					; largura do fantasma
 	WORD 4H					; altura do fantasma
-	WORD 0, GREEN, GREEN, 0, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, 0, 0, GREEN
+	WORD 0, GREEN, GREEN, 0
+	WORD GREEN, GREEN, GREEN, GREEN
+	WORD GREEN, GREEN, GREEN, GREEN
+	WORD GREEN, 0, 0, GREEN
 	
 DEF_FANTASMA2:			    ; tabela que define o fantasma
 	WORD 4H					; largura do fantasma
 	WORD 4H					; altura do fantasma
-	WORD 0, RED, RED, 0, RED, RED, RED, RED, RED, RED, RED, RED, RED, 0, 0, RED
+	WORD 0, RED, RED, 0
+	WORD RED, RED, RED, RED
+	WORD RED, RED, RED, RED
+	WORD RED, 0, 0, RED
 
  DEF_PACMAN_PARADO:			; tabela que define o pacman parado
 	WORD 4H					; largura do do pacman parado
 	WORD 5H					; altura do pacman parado
-	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
+	WORD 0, YELLOW, YELLOW, 0
+	WORD YELLOW, YELLOW, YELLOW, YELLOW
+	WORD YELLOW, YELLOW, YELLOW, YELLOW
+	WORD YELLOW, YELLOW, YELLOW, YELLOW
+	WORD 0, YELLOW, YELLOW, 0
 
  DEF_PACMAN_ANDAR:			; tabela que define o pacman a andar
 	WORD 4H					; largura do do pacman parado
 	WORD 5H					; altura do pacman parado
-	WORD 0, YELLOW, YELLOW, 0, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, 0, 0, 0, YELLOW, YELLOW, YELLOW, YELLOW, 0, YELLOW, YELLOW, 0
+	WORD 0, YELLOW, YELLOW, 0
+	WORD YELLOW, YELLOW, YELLOW, YELLOW
+	WORD YELLOW, 0, 0, 0
+	WORD YELLOW, YELLOW, YELLOW
+	WORD YELLOW, 0, YELLOW, YELLOW, 0
 
 DEF_APAGAR_PACMAN:
-	WORD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	WORD 0, 0, 0, 0
+	WORD 0, 0, 0, 0
+	WORD 0, 0, 0, 0
+	WORD 0, 0, 0, 0
+	WORD 0, 0, 0, 0
 
 DEF_APAGAR_FANTASMA:
-	WORD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	WORD 0, 0, 0, 0
+	WORD 0, 0, 0, 0
+	WORD 0, 0, 0, 0
+	WORD 0, 0, 0, 0
 
 DEF_CORDS_PACMAN_SPAWN:
 	WORD 16
@@ -115,7 +136,8 @@ DEF_CORDS_FANTASMA2_SPAWN:
  ; Registos reservados:
  ; R0 - Valor do teclado
 
- PLACE   0                     ; o código tem de começar em 0000H
+ PLACE   0   ; o código tem de começar em 0000H
+
 iniciar:
     MOV R2, 0
 	MOV  SP, SP_inicial
