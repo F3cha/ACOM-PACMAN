@@ -13,7 +13,7 @@ DEFINE_LINHA    EQU 600AH      ; endereço do comando para definir a linha
 DEFINE_COLUNA   EQU 600CH      ; endereço do comando para definir a coluna
 DEFINE_PIXEL    EQU 6012H      ; endereço do comando para escrever um pixel
 APAGA_AVISO     EQU 6040H      ; endereço do comando para apagar o aviso de nenhum cenário selecionado
-APAGA_ECRA     EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
+APAGA_ECRÃ      EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_FUNDO EQU 6042H      ; ender eço do comando para selecionar uma imagem de fundo
 
 ; --- Colors --- ;
@@ -69,7 +69,7 @@ PLACE 1000H
 pilha:
 	STACK 100H			; espaço reservado para a pilha 
 SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
-    WORD 0				; inicializado. O 1.º end. de retorno será
+    WORD 0						; inicializado. O 1.º end. de retorno será
 						; armazenado em 11FEH (1200H-2)
 							
 DEF_FANTASMA1:			    ; tabela que define o fantasma
@@ -98,8 +98,8 @@ DEF_REBUCADO:
     WORD 0, BLACK, BLACK, 0
 
  DEF_PACMAN_DIREITA:			; tabela que define o pacman a andar
-	BYTE 4					; largura do do pacman parado
-	BYTE 5					; altura do pacman parado
+	BYTE 4					    ; largura do do pacman parado
+	BYTE 5					    ; altura do pacman parado
 	WORD YELLOW
 	BYTE 0, 1, 1, 0
 	BYTE 1, 1, 1, 1
@@ -124,6 +124,16 @@ DEF_PACMAN_CIMA:
 	BYTE 1, 1, 0, 1, 1
 	BYTE 1, 1, 0, 1, 1
 	BYTE 0, 1, 1, 1, 0
+
+DEF_PACMAN_ESQUERDA:
+	BYTE 4
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 0
+	BYTE 1, 1, 1, 1
+	BYTE 0, 0, 0, 1
+	BYTE 1, 1, 1, 1
+	BYTE 0, 1, 1, 0
 
 DEF_EXPLOSAO_INICIAL:
 	BYTE 1H
@@ -179,7 +189,7 @@ iniciar:
     MOV R2, 0
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
-    MOV  [APAGA_ECRA], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+    MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
 inicio:
@@ -289,6 +299,8 @@ VERIFICA_INPUT:
 
 
     JMP inicio						; caso nao seja nenhum dos inputs valido, volta ao ciclo inicial
+FIM:
+	JMP FIM
 
     CHAMAR_CALL_CONTADOR:	
     CALL CALL_CONTADOR
@@ -308,17 +320,19 @@ EMITIR_1_SOM:
 ; R11- Valor do contador
 ; **********************************************************************
 CALL_CONTADOR:
-    PUSH R1
-    PUSH R2
-    PUSH R3
-    PUSH R4
-    PUSH R5
-    PUSH R6
-    PUSH R7
-    MOV R5, CEM
-    MOV R3, DISPLAY ; R3 endereco de display :)
-    MOV R6, TECLA_4
-    MOV R7, TECLA_6
+PUSH R1
+PUSH R2
+PUSH R3
+PUSH R4
+PUSH R5
+PUSH R6
+PUSH R7
+PUSH R8
+PUSH R9
+MOV R5, CEM
+MOV R3, DISPLAY ; R3 endereco de display :)
+MOV R6, TECLA_4
+MOV R7, TECLA_6
 CICLO_CONTADOR:
 MOV R1, R0
 CALL CHAMA_TECLADO
@@ -330,26 +344,55 @@ JZ CONTADOR_SOMA
 CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador.
 JZ CONTADOR_SUBTRAI
 JMP CICLO_CONTADOR
+
 UPDATE_DISPLAY:
     MOV [R3], R11
     JMP CICLO_CONTADOR
-TRANSFORMA_DECIMAL:
-    ;
-    ;
-    ;
+
+TRANSFORMA_DECIMAL_UP:
+    MOV R8, 09AH
+	CMP R8, R11
+    MOV R8, 0AH
+	MOV R9, R11
+    AND R9, R8
+    CMP R9, R8
+    JNZ UPDATE_DISPLAY
+    ADD R11, 6H
     JMP UPDATE_DISPLAY
+
+E_100:
+    MOV R11, 100H
+    JMP UPDATE_DISPLAY
+
+TRANSFORMA_DECIMAL_DOWN:
+	MOV R8, 0FFH
+	CMP R11, R8
+	JZ E_99
+    MOV R9, R11
+    AND R9, R8
+    CMP R9, R8
+    JNZ UPDATE_DISPLAY
+    SUB R11, 6H
+    JMP UPDATE_DISPLAY
+
+E_99:
+    MOV R11, 99H
+    JMP UPDATE_DISPLAY
+
 CONTADOR_SOMA:
     CMP R11, R5 ; vai verificar se o contador esta no limite
     JZ RETURN_CONTADOR
-    ADD R11, 1
-    JMP TRANSFORMA_DECIMAL
+    INC R11
+    JMP TRANSFORMA_DECIMAL_UP
 CONTADOR_SUBTRAI:
     CMP R11, 0 ; vai verificar se o contador esta no limite
     JZ RETURN_CONTADOR
-    SUB R11, 1
-    JMP TRANSFORMA_DECIMAL
+    DEC R11
+    JMP TRANSFORMA_DECIMAL_DOWN
 
 RETURN_CONTADOR:
+POP R9
+POP R8
 POP R7
 POP R6
 POP R5
@@ -358,6 +401,7 @@ POP R3
 POP R2
 POP R1
 RET
+
 ; **********************************************************************
 ; CHAMA_TECLADO - Vai fazer um varrimento das teclas e guardar em R0
 ;
@@ -418,7 +462,7 @@ TECLADO_RET:
 DESENHA_PACMAN_DIREITA:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_PACMAN_DIREITA
+	MOV R1, DEF_PACMAN_ESQUERDA
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
 	CALL criar_boneco
 	POP R9
@@ -428,7 +472,7 @@ DESENHA_PACMAN_DIREITA:
 DESENHA_PACMAN_PARADO:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_PACMAN_PARADO
+	MOV R1, DEF_PACMAN_DIREITA
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
 	CALL criar_boneco
 	POP R9
@@ -454,7 +498,3 @@ DESENHA_FANTASMA2:
 	POP R9
 	POP R1
 	RET
-	
-	
-FIM:
-	JMP FIM
