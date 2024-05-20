@@ -179,7 +179,7 @@ inicio:
 	MOV R11,0
 	
 	Movimento:
-	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma
+	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma,
 	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
 	JZ inicio
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
