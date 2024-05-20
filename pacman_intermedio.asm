@@ -97,25 +97,51 @@ DEF_REBUCADO:
     WORD BLACK, YELLOW, YELLOW, BLACK
     WORD 0, BLACK, BLACK, 0
 
- DEF_PACMAN_PARADO:			; tabela que define o pacman parado
-	BYTE 4					; largura do do pacman parado
-	BYTE 5					; altura do pacman parado
-	WORD YELLOW
-	BYTE 0, 1, 1, 0
-	BYTE 1, 1, 1, 1
-	BYTE 1, 1, 1, 1
-	BYTE 1, 1, 1, 1
-	BYTE 0, 1, 1, 0
-
- DEF_PACMAN_DIREITA:		; tabela que define o pacman a andar
+ DEF_PACMAN_DIREITA:			; tabela que define o pacman a andar
 	BYTE 4					; largura do do pacman parado
 	BYTE 5					; altura do pacman parado
 	WORD YELLOW
 	BYTE 0, 1, 1, 0
 	BYTE 1, 1, 1, 1
 	BYTE 1, 0, 0, 0
-	BYTE 1, 1, 1, 1
-	BYTE 0, 1, 1, 0
+	BYTE 1, 1, 1
+	BYTE 1, 0, 1, 1, 0
+	
+DEF_PACMAN_BAIXO:
+	BYTE 5 
+	BYTE 4 
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1
+	BYTE 1, 1, 0, 1, 1
+	BYTE 0, 1, 0, 1, 0
+
+DEF_PACMAN_CIMA:
+	BYTE 5
+	BYTE 4
+	WORD YELLOW
+	BYTE 0, 1, 0, 1, 0
+	BYTE 1, 1, 0, 1, 1
+	BYTE 1, 1, 0, 1, 1
+	BYTE 0, 1, 1, 1, 0
+
+DEF_EXPLOSAO_INICIAL:
+	BYTE 1H
+	BYTE 1H
+	WORD BLUE
+	BYTE 1
+
+DEF_EXPLOSAO_INTERMEDIA:
+	BYTE 3H
+	BYTE 3H
+	WORD BLUE
+	BYTE 1, 0, 1, 0, 1, 0, 1, 0, 1
+
+DEF_EXPLOSAO_FINAL:         ; tabela que define a explosao final do pacman
+	BYTE 5H                 ; altura de cruz 
+	BYTE 5H   	            ; largura da cruz
+	WORD BLUE
+	BYTE 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1 
 
 DEF_APAGAR_PACMAN:
 	BYTE 0, 0, 0, 0
@@ -402,7 +428,7 @@ DESENHA_PACMAN_DIREITA:
 DESENHA_PACMAN_PARADO:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_PACMAN_DIREITA
+	MOV R1, DEF_PACMAN_PARADO
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
 	CALL criar_boneco
 	POP R9
