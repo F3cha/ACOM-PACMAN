@@ -73,63 +73,77 @@ SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
 						; armazenado em 11FEH (1200H-2)
 							
 DEF_FANTASMA1:			    ; tabela que define o fantasma
-	WORD 4H					; largura do fantasma
-	WORD 4H					; altura do fantasma
-	WORD 0, GREEN, GREEN, 0
-	WORD GREEN, GREEN, GREEN, GREEN
-	WORD GREEN, GREEN, GREEN, GREEN
-	WORD GREEN, 0, 0, GREEN
+	BYTE 4					; largura do fantasma
+	BYTE 4					; altura do fantasma
+	WORD GREEN
+	BYTE 0, 1, 1, 0
+	BYTE 1, 1, 1, 1
+	BYTE 1, 1, 1, 1
+	BYTE 1, 0, 0, 1
 	
 DEF_FANTASMA2:			    ; tabela que define o fantasma
-	WORD 4H					; largura do fantasma
-	WORD 4H					; altura do fantasma
-	WORD 0, RED, RED, 0
-	WORD RED, RED, RED, RED
-	WORD RED, RED, RED, RED
-	WORD RED, 0, 0, RED
+	BYTE 4					; largura do fantasma
+	BYTE 4					; altura do fantasma
+	WORD RED
+	BYTE 0, 1, 1, 0
+	BYTE 1, 1, 1, 1
+	BYTE 1, 1, 1, 1
+	BYTE 1, 0, 0, 1
+DEF_REBUCADO:
+    BYTE 4
+    BYTE 4
+    WORD 0, BLACK, BLACK, 0
+    WORD BLACK, YELLOW, YELLOW, BLACK
+    WORD BLACK, YELLOW, YELLOW, BLACK
+    WORD 0, BLACK, BLACK, 0
+
+
+
 
  DEF_PACMAN_PARADO:			; tabela que define o pacman parado
-	WORD 4H					; largura do do pacman parado
-	WORD 5H					; altura do pacman parado
-	WORD 0, YELLOW, YELLOW, 0
-	WORD YELLOW, YELLOW, YELLOW, YELLOW
-	WORD YELLOW, YELLOW, YELLOW, YELLOW
-	WORD YELLOW, YELLOW, YELLOW, YELLOW
-	WORD 0, YELLOW, YELLOW, 0
+	BYTE 4					; largura do do pacman parado
+	BYTE 5					; altura do pacman parado
+	WORD YELLOW
+	BYTE 0, 1, 1, 0
+	BYTE 1, 1, 1, 1
+	BYTE 1, 1, 1, 1
+	BYTE 1, 1, 1, 1
+	BYTE 0, 1, 1, 0
 
  DEF_PACMAN_ANDAR:			; tabela que define o pacman a andar
-	WORD 4H					; largura do do pacman parado
-	WORD 5H					; altura do pacman parado
-	WORD 0, YELLOW, YELLOW, 0
-	WORD YELLOW, YELLOW, YELLOW, YELLOW
-	WORD YELLOW, 0, 0, 0
-	WORD YELLOW, YELLOW, YELLOW
-	WORD YELLOW, 0, YELLOW, YELLOW, 0
+	BYTE 4					; largura do do pacman parado
+	BYTE 5					; altura do pacman parado
+	WORD YELLOW
+	BYTE 0, 1, 1, 0
+	BYTE 1, 1, 1, 1
+	BYTE 1, 0, 0, 0
+	BYTE 1, 1, 1
+	BYTE 1, 0, 1, 1, 0
 
 DEF_APAGAR_PACMAN:
-	WORD 0, 0, 0, 0
-	WORD 0, 0, 0, 0
-	WORD 0, 0, 0, 0
-	WORD 0, 0, 0, 0
-	WORD 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
 
 DEF_APAGAR_FANTASMA:
-	WORD 0, 0, 0, 0
-	WORD 0, 0, 0, 0
-	WORD 0, 0, 0, 0
-	WORD 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
+	BYTE 0, 0, 0, 0
 
 DEF_CORDS_PACMAN_SPAWN:
-	WORD 16
-	WORD 30
+	BYTE 16
+	BYTE 30
 	
 DEF_CORDS_FANTASMA1_SPAWN:
-	WORD 16
-	WORD 0
+	BYTE 16
+	BYTE 0
 	
 DEF_CORDS_FANTASMA2_SPAWN:
-	WORD 16
-	WORD 60
+	BYTE 16
+	BYTE 60
 ; *********************************************************************************
 ; * Programa
 ; *********************************************************************************
@@ -246,6 +260,10 @@ VERIFICA_INPUT:
     MOV R2, TECLA_6					; compara o input atual com a tecla 6 para iniciar a funcao do contador
     CMP R0, R2
     JZ CHAMAR_CALL_CONTADOR
+
+
+
+
     JMP inicio						; caso nao seja nenhum dos inputs valido, volta ao ciclo inicial
 
     CHAMAR_CALL_CONTADOR:	
