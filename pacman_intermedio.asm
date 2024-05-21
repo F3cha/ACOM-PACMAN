@@ -99,44 +99,96 @@ DEF_REBUCADO:
     WORD 0, BLACK, BLACK, 0
 
  DEF_PACMAN_DIREITA:			; tabela que define o pacman a andar
-	BYTE 4					    ; largura do do pacman parado
+	BYTE 5					    ; largura do do pacman parado
 	BYTE 5					    ; altura do pacman parado
 	WORD YELLOW
-	BYTE 0, 1, 1, 0
-	BYTE 1, 1, 1, 1
-	BYTE 1, 0, 0, 0
-	BYTE 1, 1, 1
-	BYTE 1, 0, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 0, 0, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
 	
 DEF_PACMAN_BAIXO:
 	BYTE 5 
-	BYTE 4 
+	BYTE 5 
 	WORD YELLOW
 	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
 	BYTE 1, 1, 0, 1, 1
 	BYTE 1, 1, 0, 1, 1
-	BYTE 0, 1, 0, 1, 0
+	BYTE 1, 1, 0, 1, 1
 
 DEF_PACMAN_CIMA:
 	BYTE 5
-	BYTE 4
+	BYTE 5
 	WORD YELLOW
 	BYTE 0, 1, 0, 1, 0
 	BYTE 1, 1, 0, 1, 1
 	BYTE 1, 1, 0, 1, 1
+	BYTE 1, 1, 1, 1, 1
 	BYTE 0, 1, 1, 1, 0
 
 DEF_PACMAN_ESQUERDA:
-	BYTE 4
+	BYTE 5
 	BYTE 5
 	WORD YELLOW
-	BYTE 0, 1, 1, 0
-	BYTE 1, 1, 1, 1
-	BYTE 0, 0, 0, 1
-	BYTE 1, 1, 1, 1
-	BYTE 0, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 0, 0, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
 
-DEF_EXPLOSAO_INICIAL:
+DEF_PACMAN_DIAGONAL_D_C:
+	BYTE 5
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 0, 0
+	BYTE 1, 1, 0, 0, 0
+	BYTE 1, 1, 0, 0, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
+
+DEF_PACMAN_DIAGONAL_D_B:
+	BYTE 5
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 0, 0, 1
+	BYTE 1, 1, 0, 0, 0
+	BYTE 0, 1, 1, 0, 0
+
+DEF_PACMAN_DIAGONAL_E_C:
+	BYTE 5
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 0, 1, 1, 0
+	BYTE 0, 0, 0, 1, 1
+	BYTE 1, 0, 0, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
+	
+DEF_PACMAN_DIAGONAL_E_B:
+	BYTE 5
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 0, 0, 1, 1
+	BYTE 0, 0, 0, 1, 1
+	BYTE 0, 0, 1, 1, 0
+
+DEF_PACMAN_PARADO:
+	BYTE 5
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
+ 
+ DEF_EXPLOSAO_INICIAL:
 	BYTE 1H
 	BYTE 1H
 	WORD BLUE
@@ -311,15 +363,16 @@ EMITIR_1_SOM:
     MOV [EMITIR_SOM], R9
     JMP Movimento
 
-; **********************************************************************
-; CALL_CONTADOR -
+; *********************************************************************************************************
+; CALL_CONTADOR - funcao que dependendo da tecla premida ira aumentar o valor do contador decimal executado
 ; R3- Endereco do display
 ; R4- Valor em decimal
 ; R5- Valor 100
 ; R6- Endereco da tecla 4
 ; R7- Endereco da tecla 6
 ; R11- Valor do contador
-; **********************************************************************
+; Argumentos: Entrada- R0 / Saida: R3 (DISPLAY) 
+; *********************************************************************************************************
 CALL_CONTADOR:
 PUSH R1
 PUSH R2
@@ -348,13 +401,8 @@ JMP CICLO_CONTADOR
 
 UPDATE_DISPLAY:
     MOV [R3], R11
-	MOV R2, MILHAR
-	JMP DELAY
-DELAY:
-	DEC R2
-	CMP R2, 0
-	JNZ DELAY
-	JMP CICLO_CONTADOR
+	CALL FUNCAO_DELAY
+
 
 TRANSFORMA_DECIMAL_UP:
 	MOV R8, 09AH
@@ -459,6 +507,7 @@ TECLADO_SHIFT_LINHA:
 TECLADO_SEM_INPUT:
     MOV R0, 0
     JMP TECLADO_RET
+
 TECLADO_CODIFICAR:
     MOV R0, R10; vai passar o numero da linha para o R0
     SHL R0, 4; e vai dar shift para a esquerda para guardar o valor da linha
@@ -474,7 +523,7 @@ TECLADO_RET:
 DESENHA_PACMAN_DIREITA:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_PACMAN_ESQUERDA
+	MOV R1, DEF_PACMAN_DIREITA
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
 	CALL criar_boneco
 	POP R9
@@ -509,4 +558,21 @@ DESENHA_FANTASMA2:
 	CALL criar_boneco
 	POP R9
 	POP R1
+
+; **********************************************************************
+; FUNCAO_DELAY: FUNCAO QUE VAI EXECUTAR UM ATRASO EM FUNCOES
+;
+; Argumento : NONE
+; 
+; **********************************************************************
+
+FUNCAO_DELAY:
+	PUSH R2
+	MOV R2, MILHAR
+DELAY:
+	DEC R2
+	CMP R2, 0
+	JNZ DELAY
+	JMP CICLO_CONTADOR
+	POP R2 
 	RET
