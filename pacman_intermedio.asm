@@ -198,13 +198,19 @@ DEF_EXPLOSAO_INTERMEDIA:
 	BYTE 3H
 	BYTE 3H
 	WORD BLUE
-	BYTE 1, 0, 1, 0, 1, 0, 1, 0, 1
+	BYTE 1, 0, 1 
+	BYTE 0, 1, 0  
+	BYTE 1, 0, 1
 
 DEF_EXPLOSAO_FINAL:         ; tabela que define a explosao final do pacman
 	BYTE 5H                 ; altura de cruz 
 	BYTE 5H   	            ; largura da cruz
 	WORD BLUE
-	BYTE 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1 
+	BYTE 1, 0, 0, 0, 1 
+	BYTE 0, 1, 0, 1, 0 
+	BYTE 0, 0, 1, 0, 0 
+	BYTE 0, 1, 0, 1, 0
+	BYTE 1, 0, 0, 0, 1 
 
 DEF_APAGAR_PACMAN:
 	BYTE 0, 0, 0, 0
@@ -402,6 +408,7 @@ JMP CICLO_CONTADOR
 UPDATE_DISPLAY:
     MOV [R3], R11
 	CALL FUNCAO_DELAY
+	JMP  CICLO_CONTADOR
 
 
 TRANSFORMA_DECIMAL_UP:
@@ -573,6 +580,5 @@ DELAY:
 	DEC R2
 	CMP R2, 0
 	JNZ DELAY
-	JMP CICLO_CONTADOR
 	POP R2 
 	RET
