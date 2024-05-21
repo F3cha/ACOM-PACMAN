@@ -99,94 +99,95 @@ DEF_REBUCADO:
     WORD 0, BLACK, BLACK, 0
 
  DEF_PACMAN_DIREITA:			; tabela que define o pacman a andar
-	BYTE 5					    ; largura do do pacman parado
+	BYTE 6					    ; largura do do pacman parado
 	BYTE 5					    ; altura do pacman parado
 	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1
-	BYTE 1, 1, 0, 0, 0
-	BYTE 1, 1, 1, 1, 1
-	BYTE 0, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 0, 0, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
 	
 DEF_PACMAN_BAIXO:
-	BYTE 5 
+	BYTE 6 
 	BYTE 5 
 	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1
-	BYTE 1, 1, 0, 1, 1
-	BYTE 1, 1, 0, 1, 1
-	BYTE 1, 1, 0, 1, 1
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1, 0
 
 DEF_PACMAN_CIMA:
-	BYTE 5
+	BYTE 6
 	BYTE 5
 	WORD YELLOW
-	BYTE 0, 1, 0, 1, 0
-	BYTE 1, 1, 0, 1, 1
-	BYTE 1, 1, 0, 1, 1
-	BYTE 1, 1, 1, 1, 1
-	BYTE 0, 1, 1, 1, 0
+	BYTE 0, 1, 0, 1, 0, 0
+	BYTE 1, 1, 0, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
 
 DEF_PACMAN_ESQUERDA:
-	BYTE 5
+	BYTE 6
 	BYTE 5
 	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1
-	BYTE 0, 0, 0, 1, 1
-	BYTE 1, 1, 1, 1, 1
-	BYTE 0, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 0, 0, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+	
 
 DEF_PACMAN_DIAGONAL_D_C:
-	BYTE 5
+	BYTE 6
 	BYTE 5
 	WORD YELLOW
-	BYTE 0, 1, 1, 0, 0
-	BYTE 1, 1, 0, 0, 0
-	BYTE 1, 1, 0, 0, 1
-	BYTE 1, 1, 1, 1, 1
-	BYTE 0, 1, 1, 1, 0
+	BYTE 0, 1, 1, 0, 0, 0
+	BYTE 1, 1, 0, 0, 0, 0
+	BYTE 1, 1, 0, 0, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
 
 DEF_PACMAN_DIAGONAL_D_B:
-	BYTE 5
+	BYTE 6
 	BYTE 5
 	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1
-	BYTE 1, 1, 0, 0, 1
-	BYTE 1, 1, 0, 0, 0
-	BYTE 0, 1, 1, 0, 0
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 0, 0, 1, 0
+	BYTE 1, 1, 0, 0, 0, 0
+	BYTE 0, 1, 1, 0, 0, 0
 
 DEF_PACMAN_DIAGONAL_E_C:
-	BYTE 5
+	BYTE 6
 	BYTE 5
 	WORD YELLOW
-	BYTE 0, 0, 1, 1, 0
-	BYTE 0, 0, 0, 1, 1
-	BYTE 1, 0, 0, 1, 1
-	BYTE 1, 1, 1, 1, 1
-	BYTE 0, 1, 1, 1, 0
+	BYTE 0, 0, 1, 1, 0, 0
+	BYTE 0, 0, 0, 1, 1, 0
+	BYTE 1, 0, 0, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
 	
 DEF_PACMAN_DIAGONAL_E_B:
-	BYTE 5
+	BYTE 6
 	BYTE 5
 	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1
-	BYTE 1, 0, 0, 1, 1
-	BYTE 0, 0, 0, 1, 1
-	BYTE 0, 0, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 0, 0, 1, 1, 0
+	BYTE 0, 0, 0, 1, 1, 0
+	BYTE 0, 0, 1, 1, 0, 0
 
 DEF_PACMAN_PARADO:
-	BYTE 5
+	BYTE 6
 	BYTE 5
 	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1
-	BYTE 1, 1, 1, 1, 1
-	BYTE 1, 1, 1, 1, 1
-	BYTE 0, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
  
  DEF_EXPLOSAO_INICIAL:
 	BYTE 1H
@@ -530,7 +531,7 @@ TECLADO_RET:
 DESENHA_PACMAN_DIREITA:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_PACMAN_DIREITA
+	MOV R1, DEF_PACMAN_DIAGONAL_D_C
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
 	CALL criar_boneco
 	POP R9
