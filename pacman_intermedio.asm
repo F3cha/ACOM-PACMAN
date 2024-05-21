@@ -13,7 +13,7 @@ DEFINE_LINHA    EQU 600AH      ; endereço do comando para definir a linha
 DEFINE_COLUNA   EQU 600CH      ; endereço do comando para definir a coluna
 DEFINE_PIXEL    EQU 6012H      ; endereço do comando para escrever um pixel
 APAGA_AVISO     EQU 6040H      ; endereço do comando para apagar o aviso de nenhum cenário selecionado
-APAGA_ECRÃ      EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
+APAGA_ECRA      EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_FUNDO EQU 6042H      ; ender eço do comando para selecionar uma imagem de fundo
 
 ; --- Colors --- ;
@@ -60,7 +60,7 @@ EMITIR_SOM EQU 605AH ; endereço do comando para emitir um som
 DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
 
 ; --- Fantasmas --- ;
-FANTASMA EQU 4; 4 fantasmas
+FANTASMA EQU 4  ; Numero total fantasmas
 
 ; *********************************************************************************
 ; * DATA
@@ -189,7 +189,7 @@ iniciar:
     MOV R2, 0
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
-    MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+    MOV  [APAGA_ECRA], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
 inicio:
@@ -202,11 +202,11 @@ inicio:
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma,
 	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
-	JZ inicio
+	JZ Movimento
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
 	INPUT_VERIFICADO: MOV R2, R0; vai guardar a ultima tecla pressionada
-	JMP inicio
+	JMP Movimento
 
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
@@ -294,11 +294,8 @@ VERIFICA_INPUT:
     MOV R2, TECLA_6					; compara o input atual com a tecla 6 para iniciar a funcao do contador
     CMP R0, R2
     JZ CHAMAR_CALL_CONTADOR
-
-
-
-
     JMP inicio						; caso nao seja nenhum dos inputs valido, volta ao ciclo inicial
+
 FIM:
 	JMP FIM
 
@@ -498,3 +495,17 @@ DESENHA_FANTASMA2:
 	POP R9
 	POP R1
 	RET
+
+; **********************************************************************
+; Timeout - Função que faz um atraso de tempo
+; Argumentos: R1 - valor do atraso
+; **********************************************************************
+
+TIMEOUT:
+    PUSH R1
+    TIMEOUT_A_0:
+    MOV R1, 100
+    SUB R1, 1
+    JNZ TIMEOUT_A_0
+    POP R1
+    RET
