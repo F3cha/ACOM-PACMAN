@@ -263,7 +263,7 @@ iniciar:
     CALL DESENHA_FANTASMA2
     JMP Movimento
     inicio:
-
+    CALL FUNCAO_DELAY
 
 
 
