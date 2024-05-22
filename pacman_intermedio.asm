@@ -213,6 +213,20 @@ DEF_EXPLOSAO_FINAL:         ; tabela que define a explosao final do pacman
 	BYTE 0, 1, 0, 1, 0
 	BYTE 1, 0, 0, 0, 1 
 
+DEF_NINHO_PACMAN:
+	BYTE 16
+	BYTE 9
+	WORD PURPLE
+	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
+
 DEF_APAGAR_PACMAN:
 	BYTE 0, 0, 0, 0
 	BYTE 0, 0, 0, 0
@@ -531,7 +545,7 @@ TECLADO_RET:
 DESENHA_PACMAN_DIREITA:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_PACMAN_DIAGONAL_D_C
+	MOV R1, DEF_PACMAN_DIREITA
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
 	CALL criar_boneco
 	POP R9
