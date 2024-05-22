@@ -264,15 +264,19 @@ iniciar:
     JMP Movimento
     inicio:
     CALL FUNCAO_DELAY
+    MOV R2, 1
 
 
 
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma,
+    CMP R0, R2
+    JZ inicio
+
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
-	INPUT_VERIFICADO: MOV R2, R0; vai guardar a ultima tecla pressionada
-	JMP inicio
+	MOV R2, R0; vai guardar a ultima tecla pressionada
+	JMP Movimento
 
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
