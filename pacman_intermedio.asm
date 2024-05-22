@@ -400,7 +400,7 @@ VERIFICA_INPUT:
     CMP R0, R2
     JZ CHAMAR_CALL_CONTADOR
 
-    JMP inicio						; caso nao seja nenhum dos inputs valido, volta ao ciclo inicial
+    JMP inicio						; caso nao seja nenhum dos inputs valido, volta ao ciclo inicial.
 FIM:
 	JMP FIM
 
