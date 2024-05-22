@@ -93,9 +93,15 @@ DEF_REBUCADO:
     WORD 0, 0, 0, 1
 
  DEF_PACMAN_DIREITA:			; tabela que define o pacman a andar
+<<<<<<< HEAD:pacman.asm
 	WORD YELLOW
 	BYTE 6					    ; largura do do pacman parado
 	BYTE 5					    ; altura do pacman parado
+=======
+	BYTE 6					    ; largura do do pacman parado
+	BYTE 5					    ; altura do pacman parado
+	WORD YELLOW
+>>>>>>> ae6a75b462a64a12b5c4abd6fdc38072ecdc6199:pacman_intermedio.asm
 	BYTE 0, 1, 1, 1, 0, 0
 	BYTE 1, 1, 1, 1, 1, 0
 	BYTE 1, 1, 0, 0, 0, 0
@@ -103,6 +109,7 @@ DEF_REBUCADO:
 	BYTE 0, 1, 1, 1, 0, 0
 	
 DEF_PACMAN_BAIXO:
+<<<<<<< HEAD:pacman.asm
 	WORD YELLOW
 	BYTE 6 
 	BYTE 5 
@@ -111,6 +118,125 @@ DEF_PACMAN_BAIXO:
 	BYTE 1, 1, 0, 1, 1, 0
 	BYTE 1, 1, 0, 1, 1, 0
 	BYTE 1, 1, 0, 1, 1, 0
+=======
+	BYTE 6 
+	BYTE 5 
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1, 0
+
+DEF_PACMAN_CIMA:
+	BYTE 6
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 0, 1, 0, 0
+	BYTE 1, 1, 0, 1, 1, 0
+	BYTE 1, 1, 0, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+
+DEF_PACMAN_ESQUERDA:
+	BYTE 6
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 0, 0, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+	
+
+DEF_PACMAN_DIAGONAL_D_C:
+	BYTE 6
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 0, 0, 0
+	BYTE 1, 1, 0, 0, 0, 0
+	BYTE 1, 1, 0, 0, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+
+DEF_PACMAN_DIAGONAL_D_B:
+	BYTE 6
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 0, 0, 1, 0
+	BYTE 1, 1, 0, 0, 0, 0
+	BYTE 0, 1, 1, 0, 0, 0
+
+DEF_PACMAN_DIAGONAL_E_C:
+	BYTE 6
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 0, 1, 1, 0, 0
+	BYTE 0, 0, 0, 1, 1, 0
+	BYTE 1, 0, 0, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+	
+DEF_PACMAN_DIAGONAL_E_B:
+	BYTE 6
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 0, 0, 1, 1, 0
+	BYTE 0, 0, 0, 1, 1, 0
+	BYTE 0, 0, 1, 1, 0, 0
+
+DEF_PACMAN_PARADO:
+	BYTE 6
+	BYTE 5
+	WORD YELLOW
+	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1, 0
+	BYTE 0, 1, 1, 1, 0, 0
+ 
+ DEF_EXPLOSAO_INICIAL:
+	BYTE 1H
+	BYTE 1H
+	WORD BLUE
+	BYTE 1
+
+DEF_EXPLOSAO_INTERMEDIA:
+	BYTE 3H
+	BYTE 3H
+	WORD BLUE
+	BYTE 1, 0, 1 
+	BYTE 0, 1, 0  
+	BYTE 1, 0, 1
+
+DEF_EXPLOSAO_FINAL:         ; tabela que define a explosao final do pacman
+	BYTE 5H                 ; altura de cruz 
+	BYTE 5H   	            ; largura da cruz
+	WORD BLUE
+	BYTE 1, 0, 0, 0, 1 
+	BYTE 0, 1, 0, 1, 0 
+	BYTE 0, 0, 1, 0, 0 
+	BYTE 0, 1, 0, 1, 0
+	BYTE 1, 0, 0, 0, 1 
+
+DEF_NINHO_PACMAN:
+	BYTE 16
+	BYTE 9
+	WORD PURPLE
+	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
+>>>>>>> ae6a75b462a64a12b5c4abd6fdc38072ecdc6199:pacman_intermedio.asm
 
 DEF_PACMAN_CIMA:
 	WORD YELLOW
@@ -621,7 +747,24 @@ DESENHA_FANTASMA2:
 	CALL criar_boneco
 	POP R9
 	POP R1
+
+; **********************************************************************
+; FUNCAO_DELAY: FUNCAO QUE VAI EXECUTAR UM ATRASO EM FUNCOES
+;
+; Argumento : NONE
+; 
+; **********************************************************************
+
+FUNCAO_DELAY:
+	PUSH R2
+	MOV R2, MILHAR
+DELAY:
+	DEC R2
+	CMP R2, 0
+	JNZ DELAY
+	POP R2 
 	RET
+<<<<<<< HEAD:pacman.asm
 	
 DESENHA_NINHO:
 	PUSH R1
@@ -718,3 +861,5 @@ DELAY:
 	JNZ DELAY
 	POP R2 
 	RET
+=======
+>>>>>>> ae6a75b462a64a12b5c4abd6fdc38072ecdc6199:pacman_intermedio.asm
