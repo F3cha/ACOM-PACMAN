@@ -1518,9 +1518,9 @@
     "windowScreenWidthPixels" : 1024,
     "windowScreenHeightixels" : 512,
     "defaultPenColor" : 65280,
-    "image paths" : [ "../../../../Desktop/Captura_de_Ecra_11.png" ],
+    "image paths" : [ "Captura_de_Ecra_11.png" ],
     "sounds/videos settings" : [ {
-      "filePathName" : "Audio.wav",
+      "filePathName" : "WhatsApp Audio 2024-05-12 at 19.47.31(1).wav",
       "relative sound volume" : 1.0,
       "relative start time" : 0.0,
       "relative stop time" : 1.0,

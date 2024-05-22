@@ -93,15 +93,9 @@ DEF_REBUCADO:
     WORD 0, 0, 0, 1
 
  DEF_PACMAN_DIREITA:			; tabela que define o pacman a andar
-<<<<<<< HEAD:pacman.asm
 	WORD YELLOW
 	BYTE 6					    ; largura do do pacman parado
 	BYTE 5					    ; altura do pacman parado
-=======
-	BYTE 6					    ; largura do do pacman parado
-	BYTE 5					    ; altura do pacman parado
-	WORD YELLOW
->>>>>>> ae6a75b462a64a12b5c4abd6fdc38072ecdc6199:pacman_intermedio.asm
 	BYTE 0, 1, 1, 1, 0, 0
 	BYTE 1, 1, 1, 1, 1, 0
 	BYTE 1, 1, 0, 0, 0, 0
@@ -109,134 +103,13 @@ DEF_REBUCADO:
 	BYTE 0, 1, 1, 1, 0, 0
 	
 DEF_PACMAN_BAIXO:
-<<<<<<< HEAD:pacman.asm
 	WORD YELLOW
 	BYTE 6 
 	BYTE 5 
 	BYTE 0, 1, 1, 1, 0, 0
 	BYTE 1, 1, 1, 1, 1, 0
 	BYTE 1, 1, 0, 1, 1, 0
-	BYTE 1, 1, 0, 1, 1, 0
-	BYTE 1, 1, 0, 1, 1, 0
-=======
-	BYTE 6 
-	BYTE 5 
-	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 0, 1, 1, 0
-	BYTE 1, 1, 0, 1, 1, 0
-	BYTE 1, 1, 0, 1, 1, 0
 
-DEF_PACMAN_CIMA:
-	BYTE 6
-	BYTE 5
-	WORD YELLOW
-	BYTE 0, 1, 0, 1, 0, 0
-	BYTE 1, 1, 0, 1, 1, 0
-	BYTE 1, 1, 0, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
-
-DEF_PACMAN_ESQUERDA:
-	BYTE 6
-	BYTE 5
-	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 0, 0, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
-	
-
-DEF_PACMAN_DIAGONAL_D_C:
-	BYTE 6
-	BYTE 5
-	WORD YELLOW
-	BYTE 0, 1, 1, 0, 0, 0
-	BYTE 1, 1, 0, 0, 0, 0
-	BYTE 1, 1, 0, 0, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
-
-DEF_PACMAN_DIAGONAL_D_B:
-	BYTE 6
-	BYTE 5
-	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 0, 0, 1, 0
-	BYTE 1, 1, 0, 0, 0, 0
-	BYTE 0, 1, 1, 0, 0, 0
-
-DEF_PACMAN_DIAGONAL_E_C:
-	BYTE 6
-	BYTE 5
-	WORD YELLOW
-	BYTE 0, 0, 1, 1, 0, 0
-	BYTE 0, 0, 0, 1, 1, 0
-	BYTE 1, 0, 0, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
-	
-DEF_PACMAN_DIAGONAL_E_B:
-	BYTE 6
-	BYTE 5
-	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 0, 0, 1, 1, 0
-	BYTE 0, 0, 0, 1, 1, 0
-	BYTE 0, 0, 1, 1, 0, 0
-
-DEF_PACMAN_PARADO:
-	BYTE 6
-	BYTE 5
-	WORD YELLOW
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
- 
- DEF_EXPLOSAO_INICIAL:
-	BYTE 1H
-	BYTE 1H
-	WORD BLUE
-	BYTE 1
-
-DEF_EXPLOSAO_INTERMEDIA:
-	BYTE 3H
-	BYTE 3H
-	WORD BLUE
-	BYTE 1, 0, 1 
-	BYTE 0, 1, 0  
-	BYTE 1, 0, 1
-
-DEF_EXPLOSAO_FINAL:         ; tabela que define a explosao final do pacman
-	BYTE 5H                 ; altura de cruz 
-	BYTE 5H   	            ; largura da cruz
-	WORD BLUE
-	BYTE 1, 0, 0, 0, 1 
-	BYTE 0, 1, 0, 1, 0 
-	BYTE 0, 0, 1, 0, 0 
-	BYTE 0, 1, 0, 1, 0
-	BYTE 1, 0, 0, 0, 1 
-
-DEF_NINHO_PACMAN:
-	BYTE 16
-	BYTE 9
-	WORD PURPLE
-	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
->>>>>>> ae6a75b462a64a12b5c4abd6fdc38072ecdc6199:pacman_intermedio.asm
 
 DEF_PACMAN_CIMA:
 	WORD YELLOW
@@ -379,9 +252,10 @@ iniciar:
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
+	CALL RESET_POSICAO
 inicio:
 
-	CALL DESENHA_NINHO
+	;CALL DESENHA_NINHO
 	
 	;CALL DESENHA_PACMAN_DIREITA
 	
@@ -764,7 +638,6 @@ DELAY:
 	JNZ DELAY
 	POP R2 
 	RET
-<<<<<<< HEAD:pacman.asm
 	
 DESENHA_NINHO:
 	PUSH R1
@@ -836,30 +709,11 @@ RESET_POSICAO:
 	PUSH R1
 	PUSH R2
 	MOV R1, DEF_CORDS_PACMAN_SPAWN
-	MOV R2, 01EH
-	MOV [R1], R2
+	MOV R2, 010H
+	MOVB [R1], R2
 	ADD R1, 1
-	MOV R2, 10H
-	MOV [R1], R2
+	MOV R2, 1EH
+	MOVB [R1], R2
 	POP R2
 	POP R1
 	RET
-
-; **********************************************************************
-; FUNCAO_DELAY: FUNCAO QUE VAI EXECUTAR UM ATRASO EM FUNCOES
-;
-; Argumento : NONE
-; 
-; **********************************************************************
-
-FUNCAO_DELAY:
-	PUSH R2
-	MOV R2, MILHAR
-DELAY:
-	DEC R2
-	CMP R2, 0
-	JNZ DELAY
-	POP R2 
-	RET
-=======
->>>>>>> ae6a75b462a64a12b5c4abd6fdc38072ecdc6199:pacman_intermedio.asm
