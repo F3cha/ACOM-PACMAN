@@ -36,7 +36,7 @@ MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocup
 MAX_COLUNA EQU 63        ; número da coluna mais à direita que o objeto pode ocupar
 ATRASO EQU 400H	   ; atraso para limitar a velocidade de movimento do boneco
 CEM EQU 100H
-MILHAR EQU 5500H
+MILHAR EQU 1500H
 ; --- Teclas --- ;
 TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
 TECLA_1 EQU 0012H; Movimento para cima
@@ -259,23 +259,16 @@ iniciar:
 	CALL RESET_POSICAO
 	CALL DESENHA_NINHO
 	CALL DESENHA_PACMAN_PARADO
-inicio:
-
-
-
 	CALL DESENHA_FANTASMA1
+    CALL DESENHA_FANTASMA2
+    JMP Movimento
+    inicio:
 
-	CALL DESENHA_FANTASMA2
 
-	;CALL APAGAR_PACMAN
-	;CALL APAGAR_FANTASMA1
-	;CALL APAGAR_FANTASMA2
-	;CALL DESENHA_NINHO
+
 
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma,
-	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
-	JZ inicio
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
 	INPUT_VERIFICADO: MOV R2, R0; vai guardar a ultima tecla pressionada
@@ -376,50 +369,78 @@ apagar_boneco:
 ;
 ; **********************************************************************
 VERIFICA_INPUT:
-    MOV R2, TECLA_E					; compara o input atual com a tecla E para saber se termina programa ou não
+    MOV R2, TECLA_0
     CMP R0, R2
-    JZ FIM
+    JZ TECLA_PRESS_0
 
-    MOV R2, TECLA_C					; compara o input atual com a tecla C para emitir o som
+    MOV R2, TECLA_1
     CMP R0, R2
-    JZ EMITIR_1_SOM
+    JZ TECLA_PRESS_1
 
-	MOV R2, TECLA_4
-	CMP R0, R2
-	JZ CHAMAR_MOVIMENTO_ESQUERDA	; ; compara o input atual com a tecla 4 para mover o pacman para a esquerda
-
-	MOV R2, TECLA_6
-	CMP R0, R2
-	JZ CHAMAR_MOVIMENTO_DIREITA
-
-    MOV R2, TECLA_B					; compara o input atual com a tecla 4 para mover o pacman para a direita
+    MOV R2, TECLA_2
     CMP R0, R2
-    JZ CHAMAR_CALL_CONTADOR
+    JZ TECLA_PRESS_2
 
-    MOV R2, TECLA_F					; compara o input atual com a tecla 6 para iniciar a funcao do contador
+    MOV R2, TECLA_4
     CMP R0, R2
-    JZ CHAMAR_CALL_CONTADOR
+    JZ TECLA_PRESS_4
 
-    JMP inicio						; caso nao seja nenhum dos inputs valido, volta ao ciclo inicial.
+    MOV R2, TECLA_6
+    CMP R0, R2
+    JZ TECLA_PRESS_6
+
+    MOV R2, TECLA_8
+    CMP R0, R2
+    JZ TECLA_PRESS_8
+
+    MOV R2, TECLA_9
+    CMP R0, R2
+    JZ TECLA_PRESS_9
+
+    MOV R2, TECLA_A
+    CMP R0, R2
+    JZ TECLA_PRESS_A
+
+
+    JMP inicio
+    TECLA_PRESS_0:
+    CALL MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA
+    JMP inicio
+    TECLA_PRESS_1:
+    CALL MOVIMENTO_PARA_CIMA
+    JMP inicio
+    TECLA_PRESS_2:
+    CALL MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA
+    JMP inicio
+    TECLA_PRESS_4:
+    CALL MOVIMENTO_ESQUERDA
+    JMP inicio
+    TECLA_PRESS_6:
+    CALL MOVIMENTO_DIREITA
+    JMP inicio
+    TECLA_PRESS_8:
+    CALL MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA
+    JMP inicio
+    TECLA_PRESS_9:
+    CALL MOVIMENTO_PARA_BAIXO
+    JMP inicio
+    TECLA_PRESS_A:
+    CALL MOVIMENTO_DIAGONAL_INFERIOR_DIREITA
+    JMP inicio
+
+
+
+
 FIM:
 	JMP FIM
 
-CHAMAR_CALL_CONTADOR:
-    CALL CALL_CONTADOR
-    JMP inicio
 
-CHAMAR_MOVIMENTO_ESQUERDA:
-	CALL MOVIMENTO_ESQUERDA
-	JMP inicio
-
-CHAMAR_MOVIMENTO_DIREITA:
-	CALL MOVIMENTO_DIREITA
-	JMP inicio
 
 EMITIR_1_SOM:
     MOV R9, 0
     MOV [EMITIR_SOM], R9
     JMP Movimento
+
 
 ; *********************************************************************************************************
 ; CALL_CONTADOR - funcao que dependendo da tecla premida ira aumentar o valor do contador decimal executado
@@ -687,32 +708,136 @@ APAGAR_FANTASMA2:
 	POP R9
 	POP R1
 	RET
-
+; **********************************************************************
+; FUNCOES_MOVIMENTO: Para repor os valores das coordenadas
+;
+; Argumento : NONE
+;
+; **********************************************************************
 MOVIMENTO_ESQUERDA:
-	PUSH R1
 	PUSH R2
 	CALL APAGAR_PACMAN
-	MOV R1, DEF_CORDS_PACMAN_SPAWN
-	MOV R2, [R1]
+	MOV R2, [DEF_CORDS_PACMAN_SPAWN]
 	SUB R2, 1
-	MOV [R1], R2
+	MOV [DEF_CORDS_PACMAN_SPAWN], R2
 	CALL DESENHA_PACMAN_ESQUERDA
 	POP R2
-	POP R1
 	RET
 
 MOVIMENTO_DIREITA:
-	PUSH R1
+	PUSH R2
+	CALL APAGAR_PACMAN
+	MOV R2, [DEF_CORDS_PACMAN_SPAWN]
+	ADD R2, 1
+	MOV [DEF_CORDS_PACMAN_SPAWN], R2
+	CALL DESENHA_PACMAN_DIREITA
+	POP R2
+	RET
+
+MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA:
+    PUSH R1
 	PUSH R2
 	CALL APAGAR_PACMAN
 	MOV R1, DEF_CORDS_PACMAN_SPAWN
-	MOV R2, [R1]
-	ADD R2, 1
-	MOV [R1], R2
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
+
+    ADD R1, 1
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
 	CALL DESENHA_PACMAN_DIREITA
 	POP R2
 	POP R1
 	RET
+
+MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA:
+    PUSH R1
+	PUSH R2
+	CALL APAGAR_PACMAN
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
+
+    ADD R1, 1
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIREITA
+	POP R2
+	POP R1
+	RET
+
+MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA:
+    PUSH R1
+	PUSH R2
+	CALL APAGAR_PACMAN
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+
+    ADD R1, 1
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIREITA
+	POP R2
+	POP R1
+	RET
+
+MOVIMENTO_DIAGONAL_INFERIOR_DIREITA:
+    PUSH R1
+	PUSH R2
+	CALL APAGAR_PACMAN
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+
+    ADD R1, 1
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIREITA
+	POP R2
+	POP R1
+	RET
+
+MOVIMENTO_PARA_CIMA:
+PUSH R1
+	PUSH R2
+	CALL APAGAR_PACMAN
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIREITA
+	POP R2
+	POP R1
+	RET
+
+MOVIMENTO_PARA_BAIXO:
+PUSH R1
+	PUSH R2
+	CALL APAGAR_PACMAN
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIREITA
+	POP R2
+	POP R1
+	RET
+
+; **********************************************************************
+; RESET_POSICAO: Para repor os valores das coordenadas
+;
+; Argumento : NONE
+;
+; **********************************************************************
 
 RESET_POSICAO:
 	PUSH R1
