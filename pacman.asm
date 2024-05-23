@@ -104,9 +104,9 @@ DEF_REBUCADO:
 	BYTE 5					    ; largura do do pacman parado
 	BYTE 5					    ; altura do pacman parado
 	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 1, 0, 0
 	BYTE 1, 1, 0, 0, 0
-	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 1, 0, 0
 	BYTE 0, 1, 1, 1, 0
 
 DEF_PACMAN_BAIXO:
@@ -116,15 +116,15 @@ DEF_PACMAN_BAIXO:
 	BYTE 0, 1, 1, 1, 0
 	BYTE 1, 1, 1, 1, 1 
 	BYTE 1, 1, 0, 1, 1 
-	BYTE 1, 1, 0, 1, 1
-	BYTE 0, 1, 0, 1, 0
+	BYTE 1, 0, 0, 0, 1
+	BYTE 0, 0, 0, 0, 0
 
 DEF_PACMAN_CIMA:
 	WORD YELLOW
 	BYTE 5
 	BYTE 5
-	BYTE 0, 1, 0, 1, 0
-	BYTE 1, 1, 0, 1, 1
+	BYTE 0, 0, 0, 0, 0
+	BYTE 1, 0, 0, 0, 1
 	BYTE 1, 1, 0, 1, 1
 	BYTE 1, 1, 1, 1, 1
 	BYTE 0, 1, 1, 1, 0
@@ -134,9 +134,9 @@ DEF_PACMAN_ESQUERDA:
 	BYTE 5
 	BYTE 5
 	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 0, 1, 1, 1
 	BYTE 0, 0, 0, 1, 1
-	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 0, 1, 1, 1
 	BYTE 0, 1, 1, 1, 0
 
 
@@ -278,16 +278,19 @@ INT_TABLE:
 	CALL DESENHA_FANTASMA1
     CALL DESENHA_FANTASMA2
     JMP ESPERA_TECLADO
+    ESPERA_TECLADO_PARADO:
+    CALL DESENHA_PACMAN_PARADO
     ESPERA_TECLADO:
     CALL CHAMA_TECLADO
     CMP R0, 0
-    JZ ESPERA_TECLADO
+    JZ ESPERA_TECLADO_PARADO
     MOVIMENTO:
     CMP R0, R2
     JZ MOVIMENTO_DELAY
     MOVIMENTO_CONTINUO:
+    CALL EMITIR_1_SOM
     JMP VERIFICA_INPUT
-    inicio:
+    INICIO:
     MOV R2, R0
     CALL FUNCAO_DELAY
     CALL FUNCAO_DELAY
@@ -303,7 +306,7 @@ INT_TABLE:
 ; Argumentos:   R2 - tabela do boneco
 ;               R9 - tabela de cordenadas (linha e coluna)
 ; **********************************************************************
-criar_boneco:
+CRIAR_BONECO:
 	PUSH R1
 	PUSH R2
 	PUSH R3
@@ -324,13 +327,13 @@ criar_boneco:
 	MOVB R5, [R1]			; obtém a altura do boneco
 	ADD R1, 1
 
-desenha_boneco:
+DESENHA_BONECO:
 	MOVB R6, [R1]			; obtém a cor do proximo pixel
 	CALL escreve_pixel
 	ADD R1, 1				; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD R3, 1          		; próxima coluna
     SUB R4, 1				; menos uma coluna para tratar
-    JNZ desenha_boneco    	; continua até percorrer toda a largura do objeto
+    JNZ DESENHA_BONECO    	; continua até percorrer toda a largura do objeto
 	MOV R4, R7
 	SUB R5, 1
 	JNZ muda_linhas			; muda para a proxima linha
@@ -348,7 +351,7 @@ desenha_boneco:
 muda_linhas:
 	ADD R2, 1				; muda para a proxima linha
 	SUB R3, R7				; volta a escrever no inicio da linha
-	JMP desenha_boneco
+	JMP DESENHA_BONECO
 
 escreve_pixel:
 	MOV [DEFINE_LINHA], R2		; seleciona a linha
@@ -384,7 +387,7 @@ apagar_boneco:
 	ADD R1, 1
 	MOVB R5, [R1]			; obtém a altura do boneco
 	ADD R1, 1
-	JMP desenha_boneco
+	JMP DESENHA_BONECO
 
 ; **********************************************************************
 ; VERIFICA_INPUT- Vai correr um ciclo pelas diferentes instrucoes ate ecnontrar a tecla premida
@@ -425,33 +428,31 @@ VERIFICA_INPUT:
     JZ TECLA_PRESS_A
 
 
-    JMP inicio
+    JMP INICIO
     TECLA_PRESS_0:
     CALL MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA
-    JMP inicio
+    JMP INICIO
     TECLA_PRESS_1:
     CALL MOVIMENTO_PARA_CIMA
-    JMP inicio
+    JMP INICIO
     TECLA_PRESS_2:
     CALL MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA
-    JMP inicio
+    JMP INICIO
     TECLA_PRESS_4:
     CALL MOVIMENTO_ESQUERDA
-    JMP inicio
+    JMP INICIO
     TECLA_PRESS_6:
     CALL MOVIMENTO_DIREITA
-    JMP inicio
+    JMP INICIO
     TECLA_PRESS_8:
     CALL MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA
-    JMP inicio
+    JMP INICIO
     TECLA_PRESS_9:
     CALL MOVIMENTO_PARA_BAIXO
-    JMP inicio
+    JMP INICIO
     TECLA_PRESS_A:
     CALL MOVIMENTO_DIAGONAL_INFERIOR_DIREITA
-    JMP inicio
-
-
+    JMP INICIO
 
 
 FIM:
@@ -460,9 +461,11 @@ FIM:
 
 
 EMITIR_1_SOM:
+    PUSH R9
     MOV R9, 0
     MOV [EMITIR_SOM], R9
-    JMP MOVIMENTO
+    POP R9
+    RET
 ; *********************************************************************************************************
 ; INterrupcoes
 ; *********************************************************************************************************
@@ -650,7 +653,7 @@ DESENHA_NINHO:
 	PUSH R9
 	MOV R1, DEF_NINHO_PACMAN
 	MOV R9, DEF_CORDS_NINHO_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -660,7 +663,7 @@ DESENHA_PACMAN_DIREITA:
 	PUSH R9
 	MOV R1, DEF_PACMAN_DIREITA
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -670,7 +673,7 @@ DESENHA_PACMAN_ESQUERDA:
 	PUSH R9
 	MOV R1, DEF_PACMAN_ESQUERDA
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -680,7 +683,7 @@ DESENHA_PACMAN_CIMA:
 	PUSH R9
 	MOV R1, DEF_PACMAN_CIMA
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -690,7 +693,7 @@ DESENHA_PACMAN_BAIXO:
 	PUSH R9
 	MOV R1, DEF_PACMAN_BAIXO
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -698,9 +701,9 @@ DESENHA_PACMAN_BAIXO:
 DESENHA_PACMAN_PARADO:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_PACMAN_DIREITA
+	MOV R1, DEF_PACMAN_PARADO
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -710,7 +713,7 @@ DESENHA_PACMAN_DIAGONAL_E_C:
 	PUSH R9
 	MOV R1, DEF_PACMAN_DIAGONAL_E_C
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -720,7 +723,7 @@ DESENHA_PACMAN_DIAGONAL_E_B:
 	PUSH R9
 	MOV R1, DEF_PACMAN_DIAGONAL_E_B
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -730,7 +733,7 @@ DESENHA_PACMAN_DIAGONAL_D_C:
 	PUSH R9
 	MOV R1, DEF_PACMAN_DIAGONAL_D_C
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -740,7 +743,7 @@ DESENHA_PACMAN_DIAGONAL_D_B:
 	PUSH R9
 	MOV R1, DEF_PACMAN_DIAGONAL_D_B
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -750,7 +753,7 @@ DESENHA_FANTASMA1:
 	PUSH R9
 	MOV R1, DEF_FANTASMA
 	MOV R9, DEF_CORDS_FANTASMA1_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
@@ -760,7 +763,7 @@ DESENHA_FANTASMA2:
 	PUSH R9
 	MOV R1, DEF_FANTASMA
 	MOV R9, DEF_CORDS_FANTASMA2_SPAWN
-	CALL criar_boneco
+	CALL CRIAR_BONECO
 	POP R9
 	POP R1
 	RET
