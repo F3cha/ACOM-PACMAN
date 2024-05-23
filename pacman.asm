@@ -264,6 +264,10 @@ INT_TABLE:
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
+<<<<<<< HEAD
+=======
+
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
 	MOV BTE, INT_TABLE
 
 	EI
@@ -426,8 +430,13 @@ VERIFICA_INPUT:
     CMP R0, R2
     JZ TECLA_PRESS_A
 
+<<<<<<< HEAD
     JMP INICIO
 	
+=======
+
+    JMP INICIO
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
     TECLA_PRESS_0:
 	MOV R4, 0FFFFH
 	MOV R5, 0FFFFH
@@ -436,7 +445,10 @@ VERIFICA_INPUT:
 	MOV R5, 0
     CALL MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA
     JMP INICIO
+<<<<<<< HEAD
 	
+=======
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
     TECLA_PRESS_1:
 	MOV R4, 0FFFFH
 	MOV R5, 0H
@@ -445,7 +457,10 @@ VERIFICA_INPUT:
 	MOV R5, 0
     CALL MOVIMENTO_PARA_CIMA
     JMP INICIO
+<<<<<<< HEAD
 	
+=======
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
     TECLA_PRESS_2:
 	MOV R4, 0FFFFH
 	MOV R5, 01H
@@ -454,7 +469,10 @@ VERIFICA_INPUT:
 	MOV R5, 0
     CALL MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA
     JMP INICIO
+<<<<<<< HEAD
 	
+=======
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
     TECLA_PRESS_4:
 	MOV R4, 0H
 	MOV R5, 0FFFFH
@@ -463,7 +481,10 @@ VERIFICA_INPUT:
 	MOV R5, 0
     CALL MOVIMENTO_ESQUERDA
     JMP INICIO
+<<<<<<< HEAD
 	
+=======
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
     TECLA_PRESS_6:
 	MOV R4, 0H
 	MOV R5, 01H
@@ -472,7 +493,10 @@ VERIFICA_INPUT:
 	MOV R5, 0
     CALL MOVIMENTO_DIREITA
     JMP INICIO
+<<<<<<< HEAD
 	
+=======
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
     TECLA_PRESS_8:
 	MOV R4, 01H
 	MOV R5, 0FFFFH
@@ -481,7 +505,10 @@ VERIFICA_INPUT:
 	MOV R5, 0
     CALL MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA
     JMP INICIO
+<<<<<<< HEAD
 	
+=======
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
     TECLA_PRESS_9:
 	MOV R4, 01H
 	MOV R5, 0H
@@ -490,7 +517,10 @@ VERIFICA_INPUT:
 	MOV R5, 0
     CALL MOVIMENTO_PARA_BAIXO
     JMP INICIO
+<<<<<<< HEAD
 	
+=======
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
     TECLA_PRESS_A:
 	MOV R4, 01H
 	MOV R5, 01H
@@ -997,6 +1027,7 @@ RESET_POSICAO:
 	POP R1
 	RET
 
+<<<<<<< HEAD
 ; **********************************************************************
 ; RESET_POSICAO: Para repor os valores das coordenadas
 ;
@@ -1054,3 +1085,5 @@ MOVIMENTO_INVALIDO:
 	POP R2
 	POP R1
 	JMP INICIO
+=======
+>>>>>>> a9f9700cc03e81c5bf825af8ca94196cb040815e
