@@ -38,7 +38,7 @@ MIN_LINHA  EQU 0		   ; número da linha mais acima que o objeto pode ocupar
 MAX_LINHA  EQU 10		   ; número da linha mais abaixo que o objeto pode ocupar
 ATRASO EQU 400H	           ; atraso para limitar a velocidade de movimento do boneco
 CEM EQU 100H
-TEMPO_DELAY EQU 3000H
+TEMPO_DELAY EQU 9100H
 ; --- Teclas --- ;
 TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
 TECLA_1 EQU 0012H; Movimento para cima
@@ -245,6 +245,12 @@ DEF_CORDS_NINHO_SPAWN:
 	BYTE 14
 	BYTE 24
 
+DEF_PAR:
+    BYTE 0
+
+INT_TABLE:
+	WORD	int_0	; Relogio tempo
+
 ; *********************************************************************************
 ; * Programa
 ; **********************************************************************************
@@ -253,12 +259,18 @@ DEF_CORDS_NINHO_SPAWN:
 
  PLACE   0   ; o código tem de começar em 0000H
 
-iniciar:
     MOV R2, 0
 	MOV  SP, SP_inicial
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
+
+	MOV BTE, INT_TABLE
+
+	EI
+	EI0
+
+
 	MOV	 R1, 0
 	CALL RESET_POSICAO
 	CALL DESENHA_NINHO
@@ -277,8 +289,11 @@ iniciar:
     JMP VERIFICA_INPUT
     inicio:
     MOV R2, R0
+    CALL FUNCAO_DELAY
+    CALL FUNCAO_DELAY
     JMP ESPERA_TECLADO
     MOVIMENTO_DELAY:
+    CALL FUNCAO_DELAY
     CALL FUNCAO_DELAY
     JMP MOVIMENTO_CONTINUO
 
@@ -448,7 +463,12 @@ EMITIR_1_SOM:
     MOV R9, 0
     MOV [EMITIR_SOM], R9
     JMP MOVIMENTO
-
+; *********************************************************************************************************
+; INterrupcoes
+; *********************************************************************************************************
+int_0:
+    CALL CALL_CONTADOR ; Vai chamar o contador enquanto n\ao apanhar 1 fruta
+    RFE
 
 ; *********************************************************************************************************
 ; CALL_CONTADOR - funcao que dependendo da tecla premida ira aumentar o valor do contador decimal executado
@@ -474,21 +494,14 @@ MOV R5, 100H
 MOV R3, DISPLAY ; R3 endereco de display :)
 MOV R6, TECLA_4
 MOV R7, TECLA_6
+JMP CONTADOR_SOMA
 CICLO_CONTADOR:
-MOV R1, R0
-CALL CHAMA_TECLADO
-CMP R0, R1 ; Vai verificar se a tecla ainda esta premida
-JNZ RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
+JMP RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
 
-CMP R6, R0 ; caso a tecla premida seja a 4 ele vai incrementar o contador
-JZ CONTADOR_SOMA
-CMP R7, R0 ; caso a tecla premida seja a 6 ele vai decrementar o contador.
-JZ CONTADOR_SUBTRAI
-JMP CICLO_CONTADOR
+
 
 UPDATE_DISPLAY:
     MOV [R3], R11
-	CALL FUNCAO_DELAY
 	JMP  CICLO_CONTADOR
 
 
