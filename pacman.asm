@@ -38,7 +38,7 @@ MIN_LINHA  EQU 0		   ; número da linha mais acima que o objeto pode ocupar
 MAX_LINHA  EQU 10		   ; número da linha mais abaixo que o objeto pode ocupar
 ATRASO EQU 400H	           ; atraso para limitar a velocidade de movimento do boneco
 CEM EQU 100H
-MILHAR EQU 2000H
+TEMPO_DELAY EQU 3000H
 ; --- Teclas --- ;
 TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
 TECLA_1 EQU 0012H; Movimento para cima
@@ -265,22 +265,22 @@ iniciar:
 	CALL DESENHA_PACMAN_PARADO
 	CALL DESENHA_FANTASMA1
     CALL DESENHA_FANTASMA2
-    JMP Movimento
-    inicio:
-    CALL FUNCAO_DELAY
-    MOV R2, 1
-
-
-
-	Movimento:
-	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma,
+    JMP ESPERA_TECLADO
+    ESPERA_TECLADO:
+    CALL CHAMA_TECLADO
+    CMP R0, 0
+    JZ ESPERA_TECLADO
+    MOVIMENTO:
     CMP R0, R2
-    JZ inicio
-
-	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
-	JNZ VERIFICA_INPUT
-	MOV R2, R0; vai guardar a ultima tecla pressionada
-	JMP Movimento
+    JZ MOVIMENTO_DELAY
+    MOVIMENTO_CONTINUO:
+    JMP VERIFICA_INPUT
+    inicio:
+    MOV R2, R0
+    JMP ESPERA_TECLADO
+    MOVIMENTO_DELAY:
+    CALL FUNCAO_DELAY
+    JMP MOVIMENTO_CONTINUO
 
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
@@ -447,7 +447,7 @@ FIM:
 EMITIR_1_SOM:
     MOV R9, 0
     MOV [EMITIR_SOM], R9
-    JMP Movimento
+    JMP MOVIMENTO
 
 
 ; *********************************************************************************************************
@@ -617,7 +617,7 @@ TECLADO_RET:
 
 FUNCAO_DELAY:
 	PUSH R2
-	MOV R2, MILHAR
+	MOV R2, TEMPO_DELAY
 DELAY:
 	DEC R2
 	CMP R2, 0
