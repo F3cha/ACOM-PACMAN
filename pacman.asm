@@ -36,6 +36,14 @@ MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocup
 MAX_COLUNA EQU 59          ; número da coluna mais à direita que o objeto pode ocupar
 MIN_LINHA  EQU 0		   ; número da linha mais acima que o objeto pode ocupar
 MAX_LINHA  EQU 27		   ; número da linha mais abaixo que o objeto pode ocupar
+NINHO_DENTRO_MIN_LINHA EQU 14
+NINHO_DENTRO_MAX_LINHA EQU 18
+NINHO_FORA_MIN_LINHA EQU 10
+NINHO_FORA_MAX_LINHA EQU 22
+NINHO_DENTRO_MIN_COLUNA EQU 24
+NINHO_DENTRO_MAX_COLUNA EQU 35
+NINHO_FORA_MIN_COLUNA EQU 20
+NINHO_FORA_MAX_COLUNA EQU 40
 ATRASO EQU 400H	           ; atraso para limitar a velocidade de movimento do boneco
 CEM EQU 100H
 TEMPO_DELAY EQU 9100H
@@ -218,10 +226,10 @@ DEF_NINHO_PACMAN:
 	WORD BLUE_L1
 	BYTE 010H
 	BYTE 09H
-	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1			
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1         
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1			
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1			
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
@@ -998,7 +1006,7 @@ RESET_POSICAO:
 	RET
 
 ; **********************************************************************
-; RESET_POSICAO: Para repor os valores das coordenadas
+; VERIFICA_LIMITES: Verifica se o boneco chegou aos limites (ninho e bordas da tela)
 ;
 ; Argumentos : R4 - vai subir, descer ou permanecer na mesma linha (0, 1, -1)
 ;			   R5 - vai para a esquerda, diretia ou permanecer na mesma coluna (0, 1, -1)
@@ -1022,28 +1030,55 @@ VERIFICA_LIMITES:
 	ADD R2, R4							; adicionar aos registos com as coordenadas, a possivel nova coordenada de movimento
 	ADD R3, R5
 	
-	MOV R6, MIN_LINHA
+	MOV R6, MIN_LINHA					; verifica se chegou ao limite superior ou inferior da tela
 	MOV R7, MAX_LINHA
 	CMP R2, R6
 	JZ MOVIMENTO_INVALIDO
 	CMP R2, R7
 	JZ MOVIMENTO_INVALIDO
 	
-	MOV R6, MIN_COLUNA
+	MOV R6, MIN_COLUNA					; verifca se chegou aos limites laterais da tela
 	MOV R7, MAX_COLUNA
 	CMP R3, R6
 	JZ MOVIMENTO_INVALIDO
 	CMP R3, R7
 	JZ MOVIMENTO_INVALIDO
+		
+	;JMP MOVIMENTO_VALIDO
 	
-	POP R7
-	POP R6
-	POP R5
-	POP R4
-	POP R3
-	POP R2
-	POP R1
-	JMP return
+	MOV R6, NINHO_FORA_MIN_LINHA
+	MOV R7, NINHO_FORA_MAX_LINHA 
+	CMP R2, R6 
+	JGE CONFIRMA_ENTRE_LINHAS
+	JMP CONFIRMA_ENTRE_COLUNAS
+	
+CONFIRMA_ENTRE_LINHAS:
+	CMP R2, R7
+	JLE LIMITES_LATERAIS_NINHO
+	JMP CONFIRMA_ENTRE_COLUNAS
+	
+CONFIRMA_ENTRE_COLUNAS:
+	MOV R6, NINHO_FORA_MIN_COLUNA
+	MOV R7, NINHO_FORA_MAX_COLUNA
+	CMP R2, R6
+	JGE CONFIRMA_ENTRE_COLUNAS
+	CMP R2, R7
+	JLE LIMITES_HORIZONTAIS_NINHO
+	
+LIMITES_LATERAIS_NINHO:
+	
+	
+	
+	
+	JMP CONFIRMA_ENTRE_COLUNAS
+	
+LIMITES_HORIZONTAIS_NINHO:
+	
+	
+	
+	
+	
+	JMP MOVIMENTO_VALIDO	
 	
 MOVIMENTO_INVALIDO:
 	POP R7
@@ -1054,3 +1089,13 @@ MOVIMENTO_INVALIDO:
 	POP R2
 	POP R1
 	JMP INICIO
+	
+MOVIMENTO_VALIDO:
+	POP R7
+	POP R6
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	JMP return
