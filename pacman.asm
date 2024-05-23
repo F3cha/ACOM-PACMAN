@@ -33,10 +33,12 @@ BLUE_L1     EQU 0F049H
 
 ; --- Limites --- ;
 MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocupar
-MAX_COLUNA EQU 63        ; número da coluna mais à direita que o objeto pode ocupar
+MAX_COLUNA EQU 63          ; número da coluna mais à direita que o objeto pode ocupar
+MIN_LINHA  EQU 0			   ; número da linha mais acima que o objeto pode ocupar
+MAX_LINHA  EQU 10			   ; número da linha mais abaixo que o objeto pode ocupar
 ATRASO EQU 400H	   ; atraso para limitar a velocidade de movimento do boneco
 CEM EQU 100H
-MILHAR EQU 5500H
+MILHAR EQU 2000H
 ; --- Teclas --- ;
 TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
 TECLA_1 EQU 0012H; Movimento para cima
@@ -55,6 +57,10 @@ TECLA_D EQU 0082H; Pausar o Jogo/ Continuar o jogo
 TECLA_E EQU 0084H; Terminar o Jogo
 TECLA_F EQU 0088H; sem efeito
 
+; --- Posicoes --- ;
+POSICAO_INICIAL_PACMAN_X EQU 16 ; posicao inicial do pacman X
+POSICAO_INICIAL_PACMAN_Y EQU 30 ; posicao inicial do pacman Y
+
 ; --- SOM --- ;
 EMITIR_SOM EQU 605AH ; endereço do comando para emitir um som
 
@@ -69,20 +75,21 @@ FANTASMA EQU 4; 4 fantasmas
 ; *********************************************************************************
 PLACE 1000H
 pilha:
-	STACK 100H			; espaço reservado para a pilha 
+	STACK 100H			; espaço reservado para a pilha
 SP_inicial:				; este é o endereço (1200H) com que o SP deve ser
     WORD 0						; inicializado. O 1.º end. de retorno será
 						; armazenado em 11FEH (1200H-2)
-							
+
 DEF_FANTASMA:			    ; tabela que define o fantasma
 	WORD GREEN
-	BYTE 4					; largura do fantasma
-	BYTE 4					; altura do fantasma
-	BYTE 0, 1, 1, 0
-	BYTE 1, 1, 1, 1
-	BYTE 1, 1, 1, 1
-	BYTE 1, 0, 0, 1
-	
+	BYTE 5					; largura do fantasma
+	BYTE 5					; altura do fantasma
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 0, 1, 0, 1
+	BYTE 1, 0, 1, 0, 1
+
 DEF_REBUCADO:
 	WORD RED
     BYTE 4
@@ -94,94 +101,95 @@ DEF_REBUCADO:
 
  DEF_PACMAN_DIREITA:			; tabela que define o pacman a andar
 	WORD YELLOW
-	BYTE 6					    ; largura do do pacman parado
+	BYTE 5					    ; largura do do pacman parado
 	BYTE 5					    ; altura do pacman parado
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 0, 0, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
-	
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 0, 0, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
+
 DEF_PACMAN_BAIXO:
 	WORD YELLOW
-	BYTE 6 
-	BYTE 5 
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 0, 1, 1, 0
-
+	BYTE 5
+	BYTE 5
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1 
+	BYTE 1, 1, 0, 1, 1 
+	BYTE 1, 1, 0, 1, 1
+	BYTE 0, 1, 0, 1, 0
 
 DEF_PACMAN_CIMA:
 	WORD YELLOW
-	BYTE 6
 	BYTE 5
-	BYTE 0, 1, 0, 1, 0, 0
-	BYTE 1, 1, 0, 1, 1, 0
-	BYTE 1, 1, 0, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 5
+	BYTE 0, 1, 0, 1, 0
+	BYTE 1, 1, 0, 1, 1
+	BYTE 1, 1, 0, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
 
 DEF_PACMAN_ESQUERDA:
 	WORD YELLOW
-	BYTE 6
 	BYTE 5
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 0, 0, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
-	
+	BYTE 5
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 0, 0, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
+
 
 DEF_PACMAN_DIAGONAL_D_C:
 	WORD YELLOW
-	BYTE 6
 	BYTE 5
-	BYTE 0, 1, 1, 0, 0, 0
-	BYTE 1, 1, 0, 0, 0, 0
-	BYTE 1, 1, 0, 0, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
+	BYTE 5
+	BYTE 0, 1, 1, 0, 0
+	BYTE 1, 1, 0, 0, 0
+	BYTE 1, 1, 0, 0, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
 
 DEF_PACMAN_DIAGONAL_D_B:
 	WORD YELLOW
-	BYTE 6
 	BYTE 5
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 0, 0, 1, 0
-	BYTE 1, 1, 0, 0, 0, 0
-	BYTE 0, 1, 1, 0, 0, 0
+	BYTE 5
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 0, 0, 1
+	BYTE 1, 1, 0, 0, 0
+	BYTE 0, 1, 1, 0, 0
 
 DEF_PACMAN_DIAGONAL_E_C:
 	WORD YELLOW
-	BYTE 6
 	BYTE 5
-	BYTE 0, 0, 1, 1, 0, 0
-	BYTE 0, 0, 0, 1, 1, 0
-	BYTE 1, 0, 0, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
-	
+	BYTE 5
+	BYTE 0, 0, 1, 1, 0
+	BYTE 0, 0, 0, 1, 1
+	BYTE 1, 0, 0, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
+
 DEF_PACMAN_DIAGONAL_E_B:
 	WORD YELLOW
-	BYTE 6
 	BYTE 5
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 0, 0, 1, 1, 0
-	BYTE 0, 0, 0, 1, 1, 0
-	BYTE 0, 0, 1, 1, 0, 0
+	BYTE 5
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 0, 0, 1, 1
+	BYTE 0, 0, 0, 1, 1
+	BYTE 0, 0, 1, 1, 0
 
 DEF_PACMAN_PARADO:
 	WORD YELLOW
-	BYTE 6
 	BYTE 5
-	BYTE 0, 1, 1, 1, 0, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1, 0
-	BYTE 0, 1, 1, 1, 0, 0
- 
+	BYTE 5
+	BYTE 0, 1, 1, 1, 0
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 1, 1, 1
+	BYTE 0, 1, 1, 1, 0
+
  DEF_EXPLOSAO_INICIAL:
 	WORD BLUE_L0
 	BYTE 1H
@@ -192,19 +200,19 @@ DEF_EXPLOSAO_INTERMEDIA:
 	WORD BLUE_L0
 	BYTE 3H
 	BYTE 3H
-	BYTE 1, 0, 1 
-	BYTE 0, 1, 0  
+	BYTE 1, 0, 1
+	BYTE 0, 1, 0
 	BYTE 1, 0, 1
 
 DEF_EXPLOSAO_FINAL:         ; tabela que define a explosao final do pacman
 	WORD BLUE_L0
-	BYTE 5H                 ; altura de cruz 
+	BYTE 5H                 ; altura de cruz
 	BYTE 5H   	            ; largura da cruz
-	BYTE 1, 0, 0, 0, 1 
-	BYTE 0, 1, 0, 1, 0 
-	BYTE 0, 0, 1, 0, 0 
+	BYTE 1, 0, 0, 0, 1
 	BYTE 0, 1, 0, 1, 0
-	BYTE 1, 0, 0, 0, 1 
+	BYTE 0, 0, 1, 0, 0
+	BYTE 0, 1, 0, 1, 0
+	BYTE 1, 0, 0, 0, 1
 
 DEF_NINHO_PACMAN:
 	WORD BLUE_L1
@@ -224,19 +232,19 @@ DEF_NINHO_PACMAN:
 DEF_CORDS_PACMAN_SPAWN:
 	BYTE 16
 	BYTE 30
-	
+
 DEF_CORDS_FANTASMA1_SPAWN:
 	BYTE 16
 	BYTE 4
-	
+
 DEF_CORDS_FANTASMA2_SPAWN:
 	BYTE 16
 	BYTE 56
-	
+
 DEF_CORDS_NINHO_SPAWN:
 	BYTE 14
 	BYTE 24
-	
+
 ; *********************************************************************************
 ; * Programa
 ; **********************************************************************************
@@ -253,35 +261,32 @@ iniciar:
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 	MOV	 R1, 0
 	CALL RESET_POSICAO
-inicio:
-
-	;CALL DESENHA_NINHO
-	
-	;CALL DESENHA_PACMAN_DIREITA
-	
+	CALL DESENHA_NINHO
+	CALL DESENHA_PACMAN_PARADO
 	CALL DESENHA_FANTASMA1
-	
-	CALL DESENHA_FANTASMA2
-	
-	;CALL APAGAR_PACMAN
-	;CALL APAGAR_FANTASMA1
-	;CALL APAGAR_FANTASMA2
-	;CALL DESENHA_NINHO
-		
+    CALL DESENHA_FANTASMA2
+    JMP Movimento
+    inicio:
+    CALL FUNCAO_DELAY
+    MOV R2, 1
+
+
+
 	Movimento:
 	CALL CHAMA_TECLADO ;VAI corre um loop ate a tecla nao ser a mesma,
-	CMP R0, R2; Caso a tecla seja a mesma ele vai continuar a correr o loop, mas sem fazer qualquer verificacao
-	JZ inicio
+    CMP R0, R2
+    JZ inicio
+
 	CMP R0, 0; chama funcao teclado, ainda nao percebemos a parte da tecla coninua
 	JNZ VERIFICA_INPUT
-	INPUT_VERIFICADO: MOV R2, R0; vai guardar a ultima tecla pressionada
-	JMP inicio
+	MOV R2, R0; vai guardar a ultima tecla pressionada
+	JMP Movimento
 
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
 ;			       com a forma e cor definidas na tabela indicada.
 ; Argumentos:   R2 - tabela do boneco
-;               R9 - tabela de cordenadas (linha e coluna) 
+;               R9 - tabela de cordenadas (linha e coluna)
 ; **********************************************************************
 criar_boneco:
 	PUSH R1
@@ -303,7 +308,7 @@ criar_boneco:
 	ADD R1, 1
 	MOVB R5, [R1]			; obtém a altura do boneco
 	ADD R1, 1
-	
+
 desenha_boneco:
 	MOVB R6, [R1]			; obtém a cor do proximo pixel
 	CALL escreve_pixel
@@ -336,14 +341,14 @@ escreve_pixel:
 	CMP R6, 1
 	JZ pintar_pixel
 	MOV [DEFINE_PIXEL], R6		; altera a cor do pixel na linha e coluna já selecionadas
-	
-return:	
+
+return:
 	RET
-	
+
 pintar_pixel:
 	MOV [DEFINE_PIXEL], R8      ; altera a cor do pixel na linha e coluna já selecionadas
 	JMP return
-	
+
 apagar_boneco:
 	PUSH R1
 	PUSH R2
@@ -365,55 +370,85 @@ apagar_boneco:
 	MOVB R5, [R1]			; obtém a altura do boneco
 	ADD R1, 1
 	JMP desenha_boneco
-	
+
 ; **********************************************************************
-; VERIFICA_INPUT- Vai reagir a tecla pressionada
+; VERIFICA_INPUT- Vai correr um ciclo pelas diferentes instrucoes ate ecnontrar a tecla premida
+; Argumentos: Entrada- R0
+;
 ; **********************************************************************
 VERIFICA_INPUT:
-    MOV R2, TECLA_E					; compara o input atual com a tecla E para saber se termina programa ou não	
+    MOV R2, TECLA_0
     CMP R0, R2
-    JZ FIM
-	
-    MOV R2, TECLA_C					; compara o input atual com a tecla C para emitir o som
-    CMP R0, R2
-    JZ EMITIR_1_SOM
-	
-	MOV R2, TECLA_4
-	CMP R0, R2
-	JZ CHAMAR_MOVIMENTO_ESQUERDA	; ; compara o input atual com a tecla 4 para mover o pacman para a esquerda
-	
-	MOV R2, TECLA_6
-	CMP R0, R2
-	JZ CHAMAR_MOVIMENTO_DIREITA
-	
-    MOV R2, TECLA_B					; compara o input atual com a tecla 4 para mover o pacman para a direita
-    CMP R0, R2
-    JZ CHAMAR_CALL_CONTADOR
+    JZ TECLA_PRESS_0
 
-    MOV R2, TECLA_F					; compara o input atual com a tecla 6 para iniciar a funcao do contador
+    MOV R2, TECLA_1
     CMP R0, R2
-    JZ CHAMAR_CALL_CONTADOR
+    JZ TECLA_PRESS_1
 
-    JMP inicio						; caso nao seja nenhum dos inputs valido, volta ao ciclo inicial
+    MOV R2, TECLA_2
+    CMP R0, R2
+    JZ TECLA_PRESS_2
+
+    MOV R2, TECLA_4
+    CMP R0, R2
+    JZ TECLA_PRESS_4
+
+    MOV R2, TECLA_6
+    CMP R0, R2
+    JZ TECLA_PRESS_6
+
+    MOV R2, TECLA_8
+    CMP R0, R2
+    JZ TECLA_PRESS_8
+
+    MOV R2, TECLA_9
+    CMP R0, R2
+    JZ TECLA_PRESS_9
+
+    MOV R2, TECLA_A
+    CMP R0, R2
+    JZ TECLA_PRESS_A
+
+
+    JMP inicio
+    TECLA_PRESS_0:
+    CALL MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA
+    JMP inicio
+    TECLA_PRESS_1:
+    CALL MOVIMENTO_PARA_CIMA
+    JMP inicio
+    TECLA_PRESS_2:
+    CALL MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA
+    JMP inicio
+    TECLA_PRESS_4:
+    CALL MOVIMENTO_ESQUERDA
+    JMP inicio
+    TECLA_PRESS_6:
+    CALL MOVIMENTO_DIREITA
+    JMP inicio
+    TECLA_PRESS_8:
+    CALL MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA
+    JMP inicio
+    TECLA_PRESS_9:
+    CALL MOVIMENTO_PARA_BAIXO
+    JMP inicio
+    TECLA_PRESS_A:
+    CALL MOVIMENTO_DIAGONAL_INFERIOR_DIREITA
+    JMP inicio
+
+
+
+
 FIM:
 	JMP FIM
 
-CHAMAR_CALL_CONTADOR:	
-    CALL CALL_CONTADOR
-    JMP inicio
-	
-CHAMAR_MOVIMENTO_ESQUERDA:
-	CALL MOVIMENTO_ESQUERDA
-	JMP inicio
-	
-CHAMAR_MOVIMENTO_DIREITA:
-	CALL MOVIMENTO_DIREITA
-	JMP inicio
-	
+
+
 EMITIR_1_SOM:
     MOV R9, 0
     MOV [EMITIR_SOM], R9
     JMP Movimento
+
 
 ; *********************************************************************************************************
 ; CALL_CONTADOR - funcao que dependendo da tecla premida ira aumentar o valor do contador decimal executado
@@ -423,7 +458,7 @@ EMITIR_1_SOM:
 ; R6- Endereco da tecla 4
 ; R7- Endereco da tecla 6
 ; R11- Valor do contador
-; Argumentos: Entrada- R0 / Saida: R3 (DISPLAY) 
+; Argumentos: Entrada- R0 / Saida: R3 (DISPLAY)
 ; *********************************************************************************************************
 CALL_CONTADOR:
 PUSH R1
@@ -468,7 +503,7 @@ TRANSFORMA_DECIMAL_UP:
 	JNZ UPDATE_DISPLAY
 	ADD R11, 6H
 	JMP UPDATE_DISPLAY
-	
+
 
 E_100:
     MOV R11, 100H
@@ -572,6 +607,40 @@ TECLADO_RET:
     POP R9
     POP R8
     RET
+
+; **********************************************************************
+; FUNCAO_DELAY: Funcao que vai causar um atraso nas funcoes
+;
+; Argumento : NONE
+;
+; **********************************************************************
+
+FUNCAO_DELAY:
+	PUSH R2
+	MOV R2, MILHAR
+DELAY:
+	DEC R2
+	CMP R2, 0
+	JNZ DELAY
+	POP R2
+	RET
+	
+; **********************************************************************
+; FUNCOES_DESENHA: Para desenhar individualmente cada objeto
+;
+; Argumento : NONE
+;
+; **********************************************************************
+
+DESENHA_NINHO:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_NINHO_PACMAN
+	MOV R9, DEF_CORDS_NINHO_SPAWN
+	CALL criar_boneco
+	POP R9
+	POP R1
+	RET
 	
 DESENHA_PACMAN_DIREITA:
 	PUSH R1
@@ -592,6 +661,26 @@ DESENHA_PACMAN_ESQUERDA:
 	POP R9
 	POP R1
 	RET
+
+DESENHA_PACMAN_CIMA:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_PACMAN_CIMA
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL criar_boneco
+	POP R9
+	POP R1
+	RET
+
+DESENHA_PACMAN_BAIXO:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_PACMAN_BAIXO
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL criar_boneco
+	POP R9
+	POP R1
+	RET
 	
 DESENHA_PACMAN_PARADO:
 	PUSH R1
@@ -603,6 +692,46 @@ DESENHA_PACMAN_PARADO:
 	POP R1
 	RET
 	
+DESENHA_PACMAN_DIAGONAL_E_C:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_PACMAN_DIAGONAL_E_C
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL criar_boneco
+	POP R9
+	POP R1
+	RET
+
+DESENHA_PACMAN_DIAGONAL_E_B:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_PACMAN_DIAGONAL_E_B
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL criar_boneco
+	POP R9
+	POP R1
+	RET
+	
+DESENHA_PACMAN_DIAGONAL_D_C:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_PACMAN_DIAGONAL_D_C
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL criar_boneco
+	POP R9
+	POP R1
+	RET
+	
+DESENHA_PACMAN_DIAGONAL_D_B:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_PACMAN_DIAGONAL_D_B
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL criar_boneco
+	POP R9
+	POP R1
+	RET
+
 DESENHA_FANTASMA1:
 	PUSH R1
 	PUSH R9
@@ -621,90 +750,178 @@ DESENHA_FANTASMA2:
 	CALL criar_boneco
 	POP R9
 	POP R1
+	RET
 
 ; **********************************************************************
-; FUNCAO_DELAY: FUNCAO QUE VAI EXECUTAR UM ATRASO EM FUNCOES
+; FUNCOES_APAGAR_FIGURA: Para apagar uma figura qualquer
 ;
-; Argumento : NONE
-; 
+; Argumento : R9, coordenadas do boneco
+;
 ; **********************************************************************
 
-FUNCAO_DELAY:
-	PUSH R2
-	MOV R2, MILHAR
-DELAY:
-	DEC R2
-	CMP R2, 0
-	JNZ DELAY
-	POP R2 
-	RET
-	
-DESENHA_NINHO:
-	PUSH R1
-	PUSH R9
-	MOV R1, DEF_NINHO_PACMAN
-	MOV R9, DEF_CORDS_NINHO_SPAWN
-	CALL criar_boneco
-	POP R9
-	POP R1
-	RET
-
-APAGAR_PACMAN:
+APAGAR_BONECO_5X5:
 	PUSH R1
 	PUSH R9
 	MOV R1, DEF_PACMAN_DIREITA
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
-	CALL apagar_boneco
-	POP R9
-	POP R1
-	RET
-	
-APAGAR_FANTASMA1:
-	PUSH R1
-	PUSH R9
-	MOV R1, DEF_FANTASMA
-	MOV R9, DEF_CORDS_FANTASMA1_SPAWN
 	CALL apagar_boneco
 	POP R9
 	POP R1
 	RET
 
-APAGAR_FANTASMA2:
-	PUSH R1
-	PUSH R9
-	MOV R1, DEF_FANTASMA
-	MOV R9, DEF_CORDS_FANTASMA2_SPAWN
-	CALL apagar_boneco
-	POP R9
-	POP R1
-	RET
-	
+; **********************************************************************
+; FUNCOES_MOVIMENTO: Para repor os valores das coordenadas
+;
+; Argumento : NONE
+;
+; **********************************************************************
 MOVIMENTO_ESQUERDA:
-	PUSH R1
 	PUSH R2
-	CALL APAGAR_PACMAN
-	MOV R1, DEF_CORDS_PACMAN_SPAWN
-	MOV R2, [R1]
+	PUSH R9
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL APAGAR_BONECO_5X5
+	MOV R2, [DEF_CORDS_PACMAN_SPAWN]
 	SUB R2, 1
-	MOV [R1], R2
+	MOV [DEF_CORDS_PACMAN_SPAWN], R2
 	CALL DESENHA_PACMAN_ESQUERDA
+	POP R9
+	POP R2
+	RET
+
+MOVIMENTO_DIREITA:
+	PUSH R2
+	PUSH R9
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL APAGAR_BONECO_5X5
+	MOV R2, [DEF_CORDS_PACMAN_SPAWN]
+	ADD R2, 1
+	MOV [DEF_CORDS_PACMAN_SPAWN], R2
+	CALL DESENHA_PACMAN_DIREITA
+	POP R9
+	POP R2
+	RET
+
+MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA:
+    PUSH R1
+	PUSH R2
+	PUSH R9
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL APAGAR_BONECO_5X5
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
+	
+    ADD R1, 1
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIAGONAL_E_C
+	POP R9
 	POP R2
 	POP R1
 	RET
+
+MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA:
+    PUSH R1
+	PUSH R2
+	PUSH R9
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL APAGAR_BONECO_5X5
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
 	
-MOVIMENTO_DIREITA:
+    ADD R1, 1
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIAGONAL_D_C
+	POP R9
+	POP R2
+	POP R1
+	RET
+
+MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA:
+    PUSH R1
+	PUSH R2
+	PUSH R9
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL APAGAR_BONECO_5X5
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+
+    ADD R1, 1
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIAGONAL_E_B
+	POP R9
+	POP R2
+	POP R1
+	RET
+
+MOVIMENTO_DIAGONAL_INFERIOR_DIREITA:
+    PUSH R1
+	PUSH R2
+	PUSH R9
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL APAGAR_BONECO_5X5
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+    ADD R1, 1
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_DIAGONAL_D_B
+	POP R9
+	POP R2
+	POP R1
+	RET
+
+MOVIMENTO_PARA_CIMA:
 	PUSH R1
 	PUSH R2
-	CALL APAGAR_PACMAN
+	PUSH R9
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL APAGAR_BONECO_5X5
 	MOV R1, DEF_CORDS_PACMAN_SPAWN
-	MOV R2, [R1]
-	ADD R2, 1
-	MOV [R1], R2
-	CALL DESENHA_PACMAN_DIREITA
+    MOVB R2, [R1]
+    SUB R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_CIMA
+	POP R9
 	POP R2
 	POP R1
 	RET
-	
+
+MOVIMENTO_PARA_BAIXO:
+	PUSH R1
+	PUSH R2
+	PUSH R9
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	CALL APAGAR_BONECO_5X5
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+    MOVB R2, [R1]
+    ADD R2, 1
+    MOVB [R1], R2
+	CALL DESENHA_PACMAN_BAIXO
+	POP R9
+	POP R2
+	POP R1
+	RET
+
+; **********************************************************************
+; RESET_POSICAO: Para repor os valores das coordenadas
+;
+; Argumento : NONE
+;
+; **********************************************************************
+
 RESET_POSICAO:
 	PUSH R1
 	PUSH R2
