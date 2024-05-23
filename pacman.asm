@@ -34,9 +34,9 @@ BLUE_L1     EQU 0F049H
 ; --- Limites --- ;
 MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocupar
 MAX_COLUNA EQU 63          ; número da coluna mais à direita que o objeto pode ocupar
-MIN_LINHA  EQU 0			   ; número da linha mais acima que o objeto pode ocupar
-MAX_LINHA  EQU 10			   ; número da linha mais abaixo que o objeto pode ocupar
-ATRASO EQU 400H	   ; atraso para limitar a velocidade de movimento do boneco
+MIN_LINHA  EQU 0		   ; número da linha mais acima que o objeto pode ocupar
+MAX_LINHA  EQU 10		   ; número da linha mais abaixo que o objeto pode ocupar
+ATRASO EQU 400H	           ; atraso para limitar a velocidade de movimento do boneco
 CEM EQU 100H
 MILHAR EQU 2000H
 ; --- Teclas --- ;
