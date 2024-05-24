@@ -33,17 +33,9 @@ BLUE_L1     EQU 0F049H
 
 ; --- Limites --- ;
 MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocupar
-MAX_COLUNA EQU 59          ; número da coluna mais à direita que o objeto pode ocupar
+MAX_COLUNA EQU 63          ; número da coluna mais à direita que o objeto pode ocupar
 MIN_LINHA  EQU 0		   ; número da linha mais acima que o objeto pode ocupar
-MAX_LINHA  EQU 27		   ; número da linha mais abaixo que o objeto pode ocupar
-NINHO_DENTRO_MIN_LINHA EQU 14
-NINHO_DENTRO_MAX_LINHA EQU 18
-NINHO_FORA_MIN_LINHA EQU 10
-NINHO_FORA_MAX_LINHA EQU 22
-NINHO_DENTRO_MIN_COLUNA EQU 24
-NINHO_DENTRO_MAX_COLUNA EQU 35
-NINHO_FORA_MIN_COLUNA EQU 20
-NINHO_FORA_MAX_COLUNA EQU 40
+MAX_LINHA  EQU 10		   ; número da linha mais abaixo que o objeto pode ocupar
 ATRASO EQU 400H	           ; atraso para limitar a velocidade de movimento do boneco
 CEM EQU 100H
 TEMPO_DELAY EQU 9100H
@@ -122,8 +114,8 @@ DEF_PACMAN_BAIXO:
 	BYTE 5
 	BYTE 5
 	BYTE 0, 1, 1, 1, 0
-	BYTE 1, 1, 1, 1, 1 
-	BYTE 1, 1, 0, 1, 1 
+	BYTE 1, 1, 1, 1, 1
+	BYTE 1, 1, 0, 1, 1
 	BYTE 1, 0, 0, 0, 1
 	BYTE 0, 0, 0, 0, 0
 
@@ -226,10 +218,10 @@ DEF_NINHO_PACMAN:
 	WORD BLUE_L1
 	BYTE 010H
 	BYTE 09H
-	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1			
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1         
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1			
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1			
+	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
@@ -272,6 +264,7 @@ INT_TABLE:
 	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
+
 	MOV BTE, INT_TABLE
 
 	EI
@@ -434,77 +427,30 @@ VERIFICA_INPUT:
     CMP R0, R2
     JZ TECLA_PRESS_A
 
+
     JMP INICIO
-	
     TECLA_PRESS_0:
-	MOV R4, 0FFFFH
-	MOV R5, 0FFFFH
-	CALL VERIFICA_LIMITES
-	MOV R4, 0
-	MOV R5, 0
     CALL MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA
     JMP INICIO
-	
     TECLA_PRESS_1:
-	MOV R4, 0FFFFH
-	MOV R5, 0H
-	CALL VERIFICA_LIMITES
-	MOV R4, 0
-	MOV R5, 0
     CALL MOVIMENTO_PARA_CIMA
     JMP INICIO
-	
     TECLA_PRESS_2:
-	MOV R4, 0FFFFH
-	MOV R5, 01H
-	CALL VERIFICA_LIMITES
-	MOV R4, 0
-	MOV R5, 0
     CALL MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA
     JMP INICIO
-	
     TECLA_PRESS_4:
-	MOV R4, 0H
-	MOV R5, 0FFFFH
-	CALL VERIFICA_LIMITES
-	MOV R4, 0
-	MOV R5, 0
     CALL MOVIMENTO_ESQUERDA
     JMP INICIO
-	
     TECLA_PRESS_6:
-	MOV R4, 0H
-	MOV R5, 01H
-	CALL VERIFICA_LIMITES
-	MOV R4, 0
-	MOV R5, 0
     CALL MOVIMENTO_DIREITA
     JMP INICIO
-	
     TECLA_PRESS_8:
-	MOV R4, 01H
-	MOV R5, 0FFFFH
-	CALL VERIFICA_LIMITES
-	MOV R4, 0
-	MOV R5, 0
     CALL MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA
     JMP INICIO
-	
     TECLA_PRESS_9:
-	MOV R4, 01H
-	MOV R5, 0H
-	CALL VERIFICA_LIMITES
-	MOV R4, 0
-	MOV R5, 0
     CALL MOVIMENTO_PARA_BAIXO
     JMP INICIO
-	
     TECLA_PRESS_A:
-	MOV R4, 01H
-	MOV R5, 01H
-	CALL VERIFICA_LIMITES
-	MOV R4, 0
-	MOV R5, 0
     CALL MOVIMENTO_DIAGONAL_INFERIOR_DIREITA
     JMP INICIO
 
@@ -549,8 +495,6 @@ PUSH R8
 PUSH R9
 MOV R5, 100H
 MOV R3, DISPLAY ; R3 endereco de display :)
-MOV R6, TECLA_4
-MOV R7, TECLA_6
 JMP CONTADOR_SOMA
 CICLO_CONTADOR:
 JMP RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
@@ -579,17 +523,6 @@ E_100:
     MOV R11, 100H
     JMP UPDATE_DISPLAY
 
-TRANSFORMA_DECIMAL_DOWN:
-    MOV R8, 0FFH
-	CMP R11, R8
-	JZ E_99
-	MOV R8, 0FH
-	MOV R9, R11
-	AND R9, R8
-	CMP R9, R8
-	JNZ UPDATE_DISPLAY
-	SUB R11, 6H
-	JMP UPDATE_DISPLAY
 
 E_99:
     MOV R11, 99H
@@ -602,11 +535,6 @@ CONTADOR_SOMA:
     INC R11
     JMP TRANSFORMA_DECIMAL_UP
 
-CONTADOR_SUBTRAI:
-    CMP R11, 0 ; vai verificar se o contador esta no limite
-    JZ RETURN_CONTADOR
-    DEC R11
-    JMP TRANSFORMA_DECIMAL_DOWN
 
 RETURN_CONTADOR:
 POP R9
@@ -694,7 +622,7 @@ DELAY:
 	JNZ DELAY
 	POP R2
 	RET
-	
+
 ; **********************************************************************
 ; FUNCOES_DESENHA: Para desenhar individualmente cada objeto
 ;
@@ -711,7 +639,7 @@ DESENHA_NINHO:
 	POP R9
 	POP R1
 	RET
-	
+
 DESENHA_PACMAN_DIREITA:
 	PUSH R1
 	PUSH R9
@@ -751,7 +679,7 @@ DESENHA_PACMAN_BAIXO:
 	POP R9
 	POP R1
 	RET
-	
+
 DESENHA_PACMAN_PARADO:
 	PUSH R1
 	PUSH R9
@@ -761,7 +689,7 @@ DESENHA_PACMAN_PARADO:
 	POP R9
 	POP R1
 	RET
-	
+
 DESENHA_PACMAN_DIAGONAL_E_C:
 	PUSH R1
 	PUSH R9
@@ -781,7 +709,7 @@ DESENHA_PACMAN_DIAGONAL_E_B:
 	POP R9
 	POP R1
 	RET
-	
+
 DESENHA_PACMAN_DIAGONAL_D_C:
 	PUSH R1
 	PUSH R9
@@ -791,7 +719,7 @@ DESENHA_PACMAN_DIAGONAL_D_C:
 	POP R9
 	POP R1
 	RET
-	
+
 DESENHA_PACMAN_DIAGONAL_D_B:
 	PUSH R1
 	PUSH R9
@@ -833,6 +761,15 @@ APAGAR_BONECO_5X5:
 	PUSH R1
 	PUSH R9
 	MOV R1, DEF_PACMAN_DIREITA
+	CALL apagar_boneco
+	POP R9
+	POP R1
+	RET
+
+APAGAR_FRUTA:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_REBUCADO
 	CALL apagar_boneco
 	POP R9
 	POP R1
@@ -880,7 +817,7 @@ MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA:
     MOVB R2, [R1]
     SUB R2, 1
     MOVB [R1], R2
-	
+
     ADD R1, 1
     MOVB R2, [R1]
     SUB R2, 1
@@ -901,7 +838,7 @@ MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA:
     MOVB R2, [R1]
     SUB R2, 1
     MOVB [R1], R2
-	
+
     ADD R1, 1
     MOVB R2, [R1]
     ADD R2, 1
@@ -1004,98 +941,3 @@ RESET_POSICAO:
 	POP R2
 	POP R1
 	RET
-
-; **********************************************************************
-; VERIFICA_LIMITES: Verifica se o boneco chegou aos limites (ninho e bordas da tela)
-;
-; Argumentos : R4 - vai subir, descer ou permanecer na mesma linha (0, 1, -1)
-;			   R5 - vai para a esquerda, diretia ou permanecer na mesma coluna (0, 1, -1)
-;
-; **********************************************************************
-
-VERIFICA_LIMITES:
-	PUSH R1
-	PUSH R2
-	PUSH R3
-	PUSH R4
-	PUSH R5
-	PUSH R6
-	PUSH R7
-	
-	MOV R1, DEF_CORDS_PACMAN_SPAWN		; colocar as coordenadas do pacman nos registos R2 e R3
-	MOVB R2, [R1]					
-	ADD R1, 1
-	MOVB R3, [R1]
-	
-	ADD R2, R4							; adicionar aos registos com as coordenadas, a possivel nova coordenada de movimento
-	ADD R3, R5
-	
-	MOV R6, MIN_LINHA					; verifica se chegou ao limite superior ou inferior da tela
-	MOV R7, MAX_LINHA
-	CMP R2, R6
-	JZ MOVIMENTO_INVALIDO
-	CMP R2, R7
-	JZ MOVIMENTO_INVALIDO
-	
-	MOV R6, MIN_COLUNA					; verifca se chegou aos limites laterais da tela
-	MOV R7, MAX_COLUNA
-	CMP R3, R6
-	JZ MOVIMENTO_INVALIDO
-	CMP R3, R7
-	JZ MOVIMENTO_INVALIDO
-		
-	;JMP MOVIMENTO_VALIDO
-	
-	MOV R6, NINHO_FORA_MIN_LINHA
-	MOV R7, NINHO_FORA_MAX_LINHA 
-	CMP R2, R6 
-	JGE CONFIRMA_ENTRE_LINHAS
-	JMP CONFIRMA_ENTRE_COLUNAS
-	
-CONFIRMA_ENTRE_LINHAS:
-	CMP R2, R7
-	JLE LIMITES_LATERAIS_NINHO
-	JMP CONFIRMA_ENTRE_COLUNAS
-	
-CONFIRMA_ENTRE_COLUNAS:
-	MOV R6, NINHO_FORA_MIN_COLUNA
-	MOV R7, NINHO_FORA_MAX_COLUNA
-	CMP R2, R6
-	JGE CONFIRMA_ENTRE_COLUNAS
-	CMP R2, R7
-	JLE LIMITES_HORIZONTAIS_NINHO
-	
-LIMITES_LATERAIS_NINHO:
-	
-	
-	
-	
-	JMP CONFIRMA_ENTRE_COLUNAS
-	
-LIMITES_HORIZONTAIS_NINHO:
-	
-	
-	
-	
-	
-	JMP MOVIMENTO_VALIDO	
-	
-MOVIMENTO_INVALIDO:
-	POP R7
-	POP R6
-	POP R5
-	POP R4
-	POP R3
-	POP R2
-	POP R1
-	JMP INICIO
-	
-MOVIMENTO_VALIDO:
-	POP R7
-	POP R6
-	POP R5
-	POP R4
-	POP R3
-	POP R2
-	POP R1
-	JMP return
