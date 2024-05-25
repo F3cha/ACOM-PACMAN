@@ -65,6 +65,7 @@ POSICAO_INICIAL_PACMAN_Y EQU 30 ; posicao inicial do pacman Y
 
 ; --- SOM --- ;
 EMITIR_SOM EQU 605AH ; endereço do comando para emitir um som
+TERMINA_SOM EQU 6066H ; endereço do comando para terminar a emissão de um som
 
 ; --- Display --- ;
 DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
