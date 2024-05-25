@@ -39,6 +39,7 @@ MAX_LINHA  EQU 10		   ; número da linha mais abaixo que o objeto pode ocupar
 ATRASO EQU 400H	           ; atraso para limitar a velocidade de movimento do boneco
 CEM EQU 100H
 TEMPO_DELAY EQU 9100H
+
 ; --- Teclas --- ;
 TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
 TECLA_1 EQU 0012H; Movimento para cima
@@ -228,7 +229,13 @@ DEF_NINHO_PACMAN:
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
 
-
+DEF_GRELHA:
+	WORD RED
+	BYTE 64
+	BYTE 32
+	BYTE 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	
 DEF_CORDS_PACMAN_SPAWN:
 	BYTE 16
 	BYTE 30
@@ -244,6 +251,10 @@ DEF_CORDS_FANTASMA2_SPAWN:
 DEF_CORDS_NINHO_SPAWN:
 	BYTE 14
 	BYTE 24
+	
+DEF_CORDS_GRELHA_SPAWN:
+	BYTE 0
+	BYTE 0
 
 DEF_PAR:
     BYTE 0
@@ -272,6 +283,7 @@ INT_TABLE:
 
 
 	MOV	 R1, 0
+	CALL DESENHA_GRELHA
 	CALL RESET_POSICAO
 	CALL DESENHA_NINHO
 	CALL DESENHA_PACMAN_PARADO
@@ -749,7 +761,7 @@ DESENHA_FANTASMA2:
 	POP R9
 	POP R1
 	RET
-
+	
 ; **********************************************************************
 ; FUNCOES_APAGAR_FIGURA: Para apagar uma figura qualquer
 ;
@@ -941,3 +953,85 @@ RESET_POSICAO:
 	POP R2
 	POP R1
 	RET
+
+
+; **********************************************************************
+; DESENHA_GRELHA: Vai desenhar as grelhas exteriores
+;
+; Argumento : Não queriamos estar a gastar memoria para fazer a tabela
+;
+; buraco 14-19
+; **********************************************************************
+LIMITE_COLUNAS EQU 63
+LIMITE_LINHAS EQU 31
+DESENHA_GRELHA:
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	PUSH R6
+	PUSH R7
+    MOV R3, BLUE_L1 ; R3 cor do pixel
+    MOV R4, LIMITE_COLUNAS
+    MOV R5, LIMITE_LINHAS
+	MOV R2, 0 ; COLUNA
+	MOV [DEFINE_PIXEL], R3
+	MOV R6, 31
+	MOV R7, 19
+
+LINHA_COMPLETA:
+    ADD R2, 1
+    MOV [DEFINE_COLUNA], R2
+    MOV [DEFINE_PIXEL], R3
+    CMP R2, R4
+    JZ ULTIMA_LINHA
+    JMP LINHA_COMPLETA
+
+ULTIMA_LINHA:
+    CMP R1, R5
+    JZ FAZER_MIOLO
+    MOV R1, 31 ;linha
+    MOV R2, 0
+    MOV [DEFINE_LINHA], R1
+    MOV [DEFINE_COLUNA], R2
+    MOV [DEFINE_PIXEL], R3
+    JMP LINHA_COMPLETA
+
+
+FAZER_MIOLO:
+    MOV R1, 1
+    MOV R2, 0
+
+PINTAR_MIOLO:
+    MOV [DEFINE_LINHA], R1
+    ADD R1, 1
+    MOV [DEFINE_COLUNA], R2
+    MOV [DEFINE_PIXEL], R3
+    MOV [DEFINE_COLUNA], R4
+    MOV [DEFINE_PIXEL], R3
+    CMP R1, R6
+    JNZ PINTAR_MIOLO
+
+MOV R1, 13
+MOV R3, 0
+FAZER_PORTAIS:
+ADD R1, 1
+MOV [DEFINE_LINHA], R1
+MOV [DEFINE_COLUNA], R2
+MOV [DEFINE_PIXEL], R3
+MOV [DEFINE_COLUNA], R4
+MOV [DEFINE_PIXEL], R3
+CMP R1,R7
+JNZ FAZER_PORTAIS
+
+    POP R7
+	POP R6
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	RET
+
+
