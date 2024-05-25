@@ -68,6 +68,8 @@ EMITIR_SOM EQU 605AH ; endereço do comando para emitir um som
 
 ; --- Display --- ;
 DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
+ECRA_INICIAL EQU 0
+ECRA_JOGATINA EQU 1
 
 ; --- Fantasmas --- ;
 FANTASMA EQU 4; 4 fantasmas
@@ -270,10 +272,21 @@ INT_TABLE:
  ; R0 - Valor do teclado
 
  PLACE   0   ; o código tem de começar em 0000H
+    MOV  SP, SP_inicial
+    MOV  [APAGA_AVISO], R1	; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
+    MOV  [APAGA_ECRÃ], R1
+    MOV R1, 0
+    MOV  [SELECIONA_FUNDO], R1	; muda o cenário de fundo (o valor de R1 não é relevante)
+    MENU_INICIAL:
+    CALL CHAMA_TECLADO
+    MOV R5, TECLA_C
+    CMP R0, R5
+    JZ JOGAR
+    JMP MENU_INICIAL
 
+    JOGAR:
     MOV R2, 0
-	MOV  SP, SP_inicial
-	MOV  [APAGA_AVISO], R1			; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
+    MOV R1, 1
     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
 
@@ -301,7 +314,6 @@ INT_TABLE:
     CMP R0, R2
     JZ MOVIMENTO_DELAY
     MOVIMENTO_CONTINUO:
-    CALL EMITIR_1_SOM
     JMP VERIFICA_INPUT
     INICIO:
     MOV R2, R0
@@ -444,27 +456,35 @@ VERIFICA_INPUT:
     JMP INICIO
     TECLA_PRESS_0:
     CALL MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA
+    CALL EMITIR_1_SOM
     JMP INICIO
     TECLA_PRESS_1:
     CALL MOVIMENTO_PARA_CIMA
+    CALL EMITIR_1_SOM
     JMP INICIO
     TECLA_PRESS_2:
     CALL MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA
+    CALL EMITIR_1_SOM
     JMP INICIO
     TECLA_PRESS_4:
     CALL MOVIMENTO_ESQUERDA
+    CALL EMITIR_1_SOM
     JMP INICIO
     TECLA_PRESS_6:
     CALL MOVIMENTO_DIREITA
+    CALL EMITIR_1_SOM
     JMP INICIO
     TECLA_PRESS_8:
     CALL MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA
+    CALL EMITIR_1_SOM
     JMP INICIO
     TECLA_PRESS_9:
     CALL MOVIMENTO_PARA_BAIXO
+    CALL EMITIR_1_SOM
     JMP INICIO
     TECLA_PRESS_A:
     CALL MOVIMENTO_DIAGONAL_INFERIOR_DIREITA
+    CALL EMITIR_1_SOM
     JMP INICIO
 
 
@@ -1009,7 +1029,6 @@ MOVIMENTO_PARA_BAIXO:
 ;		  R2- Cor
 ; SAida - R11 0 caso nao possa mexer, 1 caso possa
 ; **********************************************************************
-
 
 
 VERIFICAR_COLISAO:
