@@ -15,6 +15,7 @@ DEFINE_PIXEL    EQU 6012H      ; endereço do comando para escrever um pixel
 APAGA_AVISO     EQU 6040H      ; endereço do comando para apagar o aviso de nenhum cenário selecionado
 APAGA_ECRÃ      EQU 6002H      ; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_FUNDO EQU 6042H      ; ender eço do comando para selecionar uma imagem de fundo
+LE_VALOR_PIXEL EQU 6010H       ; endereço do comando para ler o valor de um pixel
 
 ; --- Colors --- ;
 BLACK		EQU 0F000H
@@ -36,22 +37,22 @@ MIN_COLUNA EQU 0		   ; número da coluna mais à esquerda que o objeto pode ocup
 MAX_COLUNA EQU 63          ; número da coluna mais à direita que o objeto pode ocupar
 MIN_LINHA  EQU 0		   ; número da linha mais acima que o objeto pode ocupar
 MAX_LINHA  EQU 10		   ; número da linha mais abaixo que o objeto pode ocupar
-ATRASO EQU 400H	           ; atraso para limitar a velocidade de movimento do boneco
+ATRASO EQU 400H	           ; atraso para limitar a velocidade de MOVIMENTO do boneco
 CEM EQU 100H
 TEMPO_DELAY EQU 9100H
 
 ; --- Teclas --- ;
-TECLA_0 EQU 0011H ; Movimento na diagonal superior esquerda
-TECLA_1 EQU 0012H; Movimento para cima
-TECLA_2 EQU 0014H; Movimento na diagonal superior direita
+TECLA_0 EQU 0011H ; MOVIMENTO na diagonal superior esquerda
+TECLA_1 EQU 0012H; MOVIMENTO para cima
+TECLA_2 EQU 0014H; MOVIMENTO na diagonal superior direita
 TECLA_3 EQU 0018H; sem efeito
-TECLA_4 EQU 0021H; Movimento para a esquerda
+TECLA_4 EQU 0021H; MOVIMENTO para a esquerda
 TECLA_5 EQU 0022H; sem efeito
-TECLA_6 EQU 0024H; Movimento para a direita
+TECLA_6 EQU 0024H; MOVIMENTO para a direita
 TECLA_7 EQU 0028H; sem efeito
-TECLA_8 EQU 0041H; Movimento na diagonal inferior esquerda
-TECLA_9 EQU 0042H; Movimento para baixo
-TECLA_A EQU 0044H; Movimento na diagonal inferior direita
+TECLA_8 EQU 0041H; MOVIMENTO na diagonal inferior esquerda
+TECLA_9 EQU 0042H; MOVIMENTO para baixo
+TECLA_A EQU 0044H; MOVIMENTO na diagonal inferior direita
 TECLA_B EQU 0048H; sem efeito
 TECLA_C EQU 0081H; Comecar o jogo
 TECLA_D EQU 0082H; Pausar o Jogo/ Continuar o jogo
@@ -228,13 +229,6 @@ DEF_NINHO_PACMAN:
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
-
-DEF_GRELHA:
-	WORD RED
-	BYTE 64
-	BYTE 32
-	BYTE 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	
 DEF_CORDS_PACMAN_SPAWN:
 	BYTE 16
@@ -261,6 +255,7 @@ DEF_PAR:
 
 INT_TABLE:
 	WORD	int_0	; Relogio tempo
+	;WORD 	int_1   ; Relogio fantasma
 
 ; *********************************************************************************
 ; * Programa
@@ -287,8 +282,11 @@ INT_TABLE:
 	CALL RESET_POSICAO
 	CALL DESENHA_NINHO
 	CALL DESENHA_PACMAN_PARADO
-	CALL DESENHA_FANTASMA1
-    CALL DESENHA_FANTASMA2
+	MOV R9, DEF_CORDS_FANTASMA1_SPAWN
+	CALL DESENHA_FANTASMA
+	MOV R9, DEF_CORDS_FANTASMA2_SPAWN
+    CALL DESENHA_FANTASMA
+	MOV R9, 0
     JMP ESPERA_TECLADO
     ESPERA_TECLADO_PARADO:
     CALL DESENHA_PACMAN_PARADO
@@ -304,6 +302,8 @@ INT_TABLE:
     JMP VERIFICA_INPUT
     INICIO:
     MOV R2, R0
+	MOV R9, 0
+	MOV R10, 0
     CALL FUNCAO_DELAY
     CALL FUNCAO_DELAY
     JMP ESPERA_TECLADO
@@ -315,7 +315,7 @@ INT_TABLE:
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
 ;			       com a forma e cor definidas na tabela indicada.
-; Argumentos:   R2 - tabela do boneco
+; Argumentos:   R1 - tabela do boneco
 ;               R9 - tabela de cordenadas (linha e coluna)
 ; **********************************************************************
 CRIAR_BONECO:
@@ -407,6 +407,8 @@ apagar_boneco:
 ;
 ; **********************************************************************
 VERIFICA_INPUT:
+	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	ADD R10, 1
     MOV R2, TECLA_0
     CMP R0, R2
     JZ TECLA_PRESS_0
@@ -742,21 +744,10 @@ DESENHA_PACMAN_DIAGONAL_D_B:
 	POP R1
 	RET
 
-DESENHA_FANTASMA1:
+DESENHA_FANTASMA:
 	PUSH R1
 	PUSH R9
 	MOV R1, DEF_FANTASMA
-	MOV R9, DEF_CORDS_FANTASMA1_SPAWN
-	CALL CRIAR_BONECO
-	POP R9
-	POP R1
-	RET
-
-DESENHA_FANTASMA2:
-	PUSH R1
-	PUSH R9
-	MOV R1, DEF_FANTASMA
-	MOV R9, DEF_CORDS_FANTASMA2_SPAWN
 	CALL CRIAR_BONECO
 	POP R9
 	POP R1
@@ -790,18 +781,28 @@ APAGAR_FRUTA:
 ; **********************************************************************
 ; FUNCOES_MOVIMENTO: Para repor os valores das coordenadas
 ;
-; Argumento : NONE
-;
+; Argumento : R9 - coordenadas do boneco
+;			  R10 - desenha fantasma ou pacman (0 para fantasma, 1 para pacman)
 ; **********************************************************************
+
 MOVIMENTO_ESQUERDA:
 	PUSH R2
 	PUSH R9
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	PUSH R11
+	MOV R1, R9 
+    MOV R2, BLUE_L1
+    CALL VERIFICAR_COLISAO
+	CMP R11, 0
+	JZ OBSTACULO_ESQ
 	CALL APAGAR_BONECO_5X5
-	MOV R2, [DEF_CORDS_PACMAN_SPAWN]
+	MOV R2, [R9]
 	SUB R2, 1
-	MOV [DEF_CORDS_PACMAN_SPAWN], R2
+	MOV [R9], R2
+	CMP R10, 0
+	JZ PRE_DESENHO_FANTASMA
 	CALL DESENHA_PACMAN_ESQUERDA
+	OBSTACULO_ESQ:
+	POP R11
 	POP R9
 	POP R2
 	RET
@@ -809,86 +810,123 @@ MOVIMENTO_ESQUERDA:
 MOVIMENTO_DIREITA:
 	PUSH R2
 	PUSH R9
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	PUSH R11
+	MOV R1, R9
+    MOV R2, BLUE_L1
+    CALL VERIFICAR_COLISAO
+    CMP R11, 0
+    JZ OBSTACULO_DIR
 	CALL APAGAR_BONECO_5X5
-	MOV R2, [DEF_CORDS_PACMAN_SPAWN]
+	MOV R2, [R9]
 	ADD R2, 1
-	MOV [DEF_CORDS_PACMAN_SPAWN], R2
+	MOV [R9], R2
+	CMP R10, 0
+	JZ PRE_DESENHO_FANTASMA
 	CALL DESENHA_PACMAN_DIREITA
+	OBSTACULO_DIR:
+	POP R11
 	POP R9
 	POP R2
 	RET
 
 MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA:
-    PUSH R1
 	PUSH R2
 	PUSH R9
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	PUSH R11
+	MOV R1, R9
+	MOV R2, BLUE_L1
+	CALL VERIFICAR_COLISAO
+	CMP R11, 0
+	JZ OBSTACULO_DSE
 	CALL APAGAR_BONECO_5X5
-	MOV R1, DEF_CORDS_PACMAN_SPAWN
+	MOV R1, R9
     MOVB R2, [R1]
     SUB R2, 1
     MOVB [R1], R2
-
     ADD R1, 1
     MOVB R2, [R1]
     SUB R2, 1
     MOVB [R1], R2
+	CMP R10, 0
+	JZ PRE_DESENHO_FANTASMA
 	CALL DESENHA_PACMAN_DIAGONAL_E_C
+	OBSTACULO_DSE:
+	POP R11
 	POP R9
 	POP R2
-	POP R1
 	RET
 
 MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA:
-    PUSH R1
 	PUSH R2
 	PUSH R9
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	PUSH R11
+	MOV R1, R9
+	MOV R2, BLUE_L1
+	CALL VERIFICAR_COLISAO
+    CMP R11, 0
+    JZ OBSTACULO_DSD
 	CALL APAGAR_BONECO_5X5
-	MOV R1, DEF_CORDS_PACMAN_SPAWN
+	MOV R1, R9
     MOVB R2, [R1]
     SUB R2, 1
     MOVB [R1], R2
-
     ADD R1, 1
     MOVB R2, [R1]
     ADD R2, 1
     MOVB [R1], R2
+	CMP R10, 0
+	JZ PRE_DESENHO_FANTASMA
 	CALL DESENHA_PACMAN_DIAGONAL_D_C
+    OBSTACULO_DSD:
+	POP R11
 	POP R9
 	POP R2
-	POP R1
 	RET
 
 MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA:
-    PUSH R1
 	PUSH R2
 	PUSH R9
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	PUSH R11
+	MOV R1, R9
+	MOV R2, BLUE_L1
+	CALL VERIFICAR_COLISAO
+	CMP R11, 0
+	JZ OBSTACULO_DIE
 	CALL APAGAR_BONECO_5X5
-	MOV R1, DEF_CORDS_PACMAN_SPAWN
+	MOV R1, R9
     MOVB R2, [R1]
     ADD R2, 1
     MOVB [R1], R2
-
     ADD R1, 1
     MOVB R2, [R1]
     SUB R2, 1
     MOVB [R1], R2
+	CMP R10, 0
+	JZ PRE_DESENHO_FANTASMA
 	CALL DESENHA_PACMAN_DIAGONAL_E_B
+	OBSTACULO_DIE:
+	POP R11
 	POP R9
 	POP R2
-	POP R1
 	RET
 
+PRE_DESENHO_FANTASMA:
+	POP R11
+	POP R9
+	POP R2
+	JMP DESENHA_FANTASMA
+	
 MOVIMENTO_DIAGONAL_INFERIOR_DIREITA:
-    PUSH R1
 	PUSH R2
 	PUSH R9
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	PUSH R11
+	MOV R1, R9
+	MOV R2, BLUE_L1
+	CALL VERIFICAR_COLISAO
+	CMP R11, 0
+	JZ OBSTACULO_DID
 	CALL APAGAR_BONECO_5X5
-	MOV R1, DEF_CORDS_PACMAN_SPAWN
+	MOV R1, R9
     MOVB R2, [R1]
     ADD R2, 1
     MOVB [R1], R2
@@ -896,43 +934,189 @@ MOVIMENTO_DIAGONAL_INFERIOR_DIREITA:
     MOVB R2, [R1]
     ADD R2, 1
     MOVB [R1], R2
+	CMP R10, 0
+	JZ PRE_DESENHO_FANTASMA
 	CALL DESENHA_PACMAN_DIAGONAL_D_B
+	OBSTACULO_DID:
+	POP R11
 	POP R9
 	POP R2
-	POP R1
 	RET
 
 MOVIMENTO_PARA_CIMA:
-	PUSH R1
 	PUSH R2
 	PUSH R9
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	PUSH R11
+	MOV R1, R9
+	MOV R2, BLUE_L1
+	CALL VERIFICAR_COLISAO
+	CMP R11, 0
+	JZ OBSTACULO_CIMA
 	CALL APAGAR_BONECO_5X5
-	MOV R1, DEF_CORDS_PACMAN_SPAWN
+	MOV R1, R9
     MOVB R2, [R1]
     SUB R2, 1
     MOVB [R1], R2
+	CMP R10, 0
+	JZ PRE_DESENHO_FANTASMA
 	CALL DESENHA_PACMAN_CIMA
+	OBSTACULO_CIMA:
+	POP R11
 	POP R9
 	POP R2
-	POP R1
 	RET
 
 MOVIMENTO_PARA_BAIXO:
-	PUSH R1
 	PUSH R2
 	PUSH R9
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	PUSH R11
+	MOV R1, R9
+	MOV R2, BLUE_L1
+	CALL VERIFICAR_COLISAO
+	CMP R11, 0
+	JZ OBSTACULO_BAIXO
 	CALL APAGAR_BONECO_5X5
-	MOV R1, DEF_CORDS_PACMAN_SPAWN
+	MOV R1, R9
     MOVB R2, [R1]
     ADD R2, 1
     MOVB [R1], R2
+	CMP R10, 0
+	JZ PRE_DESENHO_FANTASMA
 	CALL DESENHA_PACMAN_BAIXO
+	OBSTACULO_BAIXO:
+	POP R11
 	POP R9
 	POP R2
-	POP R1
 	RET
+	
+; **********************************************************************
+; VERIFICAR_COLISAO: Para repor os valores das coordenadas
+; R
+; Argumento : NONE
+; Entrada R0- Input do teclado
+;         R1- Endereco posição do boneco
+;		  R2- Cor
+; SAida - R11 0 caso nao possa mexer, 1 caso possa
+; **********************************************************************
+
+
+VERIFICAR_COLISAO:
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	PUSH R6
+	PUSH R7
+	PUSH R8
+	MOV R11, 0
+
+	MOVB R3, [R1] ; numero de linha
+	ADD R1, 1
+	MOVB R4, [R1] ; numero de coluna
+	MOV R7, 5
+	MOV R8, 5
+
+
+	MOV R5, TECLA_0
+	CMP R0, R5
+	JZ TECLA_0_COLISAO
+
+	MOV R5, TECLA_1
+	CMP R0, R5
+	JZ TECLA_1_COLISAO
+
+	MOV R5, TECLA_2
+	CMP R0, R5
+	JZ TECLA_2_COLISAO
+
+	MOV R5, TECLA_4
+	CMP R0, R5
+	JZ TECLA_4_COLISAO
+
+	MOV R5, TECLA_6
+	CMP R0, R5
+	JZ TECLA_6_COLISAO
+
+	MOV R5, TECLA_8
+	CMP R0, R5
+	JZ TECLA_8_COLISAO
+
+	MOV R5, TECLA_9
+	CMP R0, R5
+	JZ TECLA_9_COLISAO
+
+	MOV R5, TECLA_A
+	CMP R0, R5
+	JZ TECLA_A_COLISAO
+
+TECLA_0_COLISAO:
+	SUB R4, 1
+	SUB R3, 1
+	JMP CICLO_COLISAO
+
+TECLA_1_COLISAO:
+	SUB R3, 1
+	JMP CICLO_COLISAO
+
+TECLA_2_COLISAO:
+	ADD R4, 1
+	SUB R3, 1
+	JMP CICLO_COLISAO
+
+TECLA_4_COLISAO:
+	SUB R4, 1
+	JMP CICLO_COLISAO
+
+TECLA_6_COLISAO:
+	ADD R4, 1
+	JMP CICLO_COLISAO
+
+TECLA_8_COLISAO:
+	SUB R4, 1
+	ADD R3, 1
+	JMP CICLO_COLISAO
+
+TECLA_9_COLISAO:
+	ADD R3, 1
+	JMP CICLO_COLISAO
+
+TECLA_A_COLISAO:
+	ADD R4, 1
+	ADD R3, 1
+	JMP CICLO_COLISAO
+
+CICLO_COLISAO:
+	MOV [DEFINE_COLUNA], R4
+	MOV [DEFINE_LINHA], R3
+	MOV R5, [LE_VALOR_PIXEL]
+	CMP R5, R2
+	JZ FIM_VERIFICAR_PIXEL
+	SUB R7, 1
+	ADD R4, 1
+	CMP R7,0
+	JZ MUDA_LINHA_COLISAO
+	JMP CICLO_COLISAO
+
+MUDA_LINHA_COLISAO:
+	MOV R7, 5
+	SUB R4,5
+	SUB R8,1
+	ADD R3, 1
+	CMP R8, 0
+	JZ COLISAO_VALIDA
+	JMP CICLO_COLISAO
+
+COLISAO_VALIDA:
+	MOV R11, 1
+	
+FIM_VERIFICAR_PIXEL:
+	POP R8
+	POP R7
+	POP R6
+	POP R5
+	POP R4
+	POP R3
+	RET
+
 
 ; **********************************************************************
 ; RESET_POSICAO: Para repor os valores das coordenadas
@@ -950,18 +1134,34 @@ RESET_POSICAO:
 	ADD R1, 1
 	MOV R2, 1EH
 	MOVB [R1], R2
+	MOV R1, 0
+	MOV R1, DEF_CORDS_FANTASMA1_SPAWN
+	MOV R2, 010H
+	MOVB [R1], R2
+	ADD R1, 1
+	MOV R2, 04H
+	MOVB [R1], R2
+	MOV R1, 0
+	MOV R1, DEF_CORDS_FANTASMA2_SPAWN
+	MOV R2, 010H
+	MOVB [R1], R2
+	ADD R1, 1
+	MOV R2, 38H
+	MOVB [R1], R2
 	POP R2
 	POP R1
 	RET
 
 
 ; **********************************************************************
-; DESENHA_GRELHA: Para repor os valores das coordenadas
+; DESENHA_GRELHA: Vai desenhar as grelhas exteriores
 ;
-; Argumento : NONE
+; Argumento : Não queriamos estar a gastar memoria para fazer a tabela
 ;
+; buraco 14-19
 ; **********************************************************************
-
+LIMITE_COLUNAS EQU 63
+LIMITE_LINHAS EQU 31
 DESENHA_GRELHA:
 	PUSH R1
 	PUSH R2
@@ -969,20 +1169,61 @@ DESENHA_GRELHA:
 	PUSH R4
 	PUSH R5
 	PUSH R6
-	
-	MOV R1, [DEFINE_LINHA]
-	MOV R2, [DEFINE_COLUNA]
-	MOV R3, [DEFINE_PIXEL]
-	MOV R1, 0
-	MOV R2, 0
-	
+	PUSH R7
+    MOV R3, BLUE_L1 ; R3 cor do pixel
+    MOV R4, LIMITE_COLUNAS
+    MOV R5, LIMITE_LINHAS
+	MOV R2, 0 ; COLUNA
+	MOV [DEFINE_PIXEL], R3
+	MOV R6, 31
+	MOV R7, 19
+
 LINHA_COMPLETA:
-	MOV R3, RED
-	MOV [DEFINE_LINHA], R1		; seleciona a linha
-	MOV [DEFINE_COLUNA], R2		; seleciona a coluna
-	MOV [DEFINE_PIXEL], R3		; altera a cor do pixel na linha e coluna já selecionadas
-	
-	
+    ADD R2, 1
+    MOV [DEFINE_COLUNA], R2
+    MOV [DEFINE_PIXEL], R3
+    CMP R2, R4
+    JZ ULTIMA_LINHA
+    JMP LINHA_COMPLETA
+
+ULTIMA_LINHA:
+    CMP R1, R5
+    JZ FAZER_MIOLO
+    MOV R1, 31 ;linha
+    MOV R2, 0
+    MOV [DEFINE_LINHA], R1
+    MOV [DEFINE_COLUNA], R2
+    MOV [DEFINE_PIXEL], R3
+    JMP LINHA_COMPLETA
+
+
+FAZER_MIOLO:
+    MOV R1, 1
+    MOV R2, 0
+
+PINTAR_MIOLO:
+    MOV [DEFINE_LINHA], R1
+    ADD R1, 1
+    MOV [DEFINE_COLUNA], R2
+    MOV [DEFINE_PIXEL], R3
+    MOV [DEFINE_COLUNA], R4
+    MOV [DEFINE_PIXEL], R3
+    CMP R1, R6
+    JNZ PINTAR_MIOLO
+
+MOV R1, 13
+MOV R3, 0
+FAZER_PORTAIS:
+ADD R1, 1
+MOV [DEFINE_LINHA], R1
+MOV [DEFINE_COLUNA], R2
+MOV [DEFINE_PIXEL], R3
+MOV [DEFINE_COLUNA], R4
+MOV [DEFINE_PIXEL], R3
+CMP R1,R7
+JNZ FAZER_PORTAIS
+
+    POP R7
 	POP R6
 	POP R5
 	POP R4
@@ -991,5 +1232,119 @@ LINHA_COMPLETA:
 	POP R1
 	RET
 
-LINHAS_MEIO:
 
+
+; **********************************************************************
+; MOVE_FANTASMA: Move o fantasma em direção ao Pacman
+;
+; Argumento : R1 - Tabela com as coordenadas do pacman que se está a mexer
+;
+; buraco 14-19
+; **********************************************************************
+
+MOVE_FANTASMA:
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	PUSH R6
+	PUSH R9
+	
+	MOVB R5, [R9]			; obtém a linha onde o fantasma está
+	ADD R1, 1
+	MOVB R6, [R9]			; obtém a coluna onde o fantasma está
+	
+	MOV R2, DEF_CORDS_PACMAN_SPAWN
+	MOVB R3, [R2]			; obtém a linha onde o pacman está
+	ADD R2, 1
+	MOVB R4, [R2]			; obtém a coluna onde o pacman está
+	
+	CMP R5, R3
+	JZ FANTASMA_MESMA_LINHA_PACMAN
+	
+	CMP R6, R4
+	JZ FANTASMA_MESMA_COLUNA_PACMAN
+	
+	CMP R5, R3
+	JN FANTASMA_POR_CIMA_DO_PACMAN
+	
+	CMP R5, R3
+	JNN FANTASMA_POR_BAIXO_DO_PACMAN
+	
+	
+FANTASMA_POR_CIMA_DO_PACMAN:
+	CMP R6, R4
+	JN FANTASMA_ESQUERDA_CIMA
+	
+	CMP R6, R4
+	JNN FANTASMA_DIREITA_CIMA
+	
+FANTASMA_POR_BAIXO_DO_PACMAN:	
+	CMP R6, R4
+	JN FANTASMA_ESQUERDA_BAIXO
+	
+	CMP R6, R4
+	JNN FANTASMA_DIREITA_BAIXO
+	
+FANTASMA_MESMA_LINHA_PACMAN:
+	CMP R5, R3
+	JN FANTASMA_ESQUERDA
+	
+	CMP R5, R3
+	JNN FANTASMA_DIREITA
+
+FANTASMA_MESMA_COLUNA_PACMAN:
+	CMP R6, R4  
+	JN FANTASMA_CIMA
+	
+	CMP R6, R4  
+	JNN FANTASMA_BAIXO
+	
+FANTASMA_ESQUERDA_CIMA:	
+	;CALL F_MOVIMENTO_DIAGONAL_INFERIOR_DIREITA
+	;COLISAO
+	JMP RETURN_MOVE_FANTASMA
+	
+FANTASMA_DIREITA_CIMA:
+	;CALL F_MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA
+	;COLISAO
+	JMP RETURN_MOVE_FANTASMA
+
+FANTASMA_ESQUERDA_BAIXO:
+	;CALL F_MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA
+	;COLISAO
+	JMP RETURN_MOVE_FANTASMA
+	
+FANTASMA_DIREITA_BAIXO:
+	;CALL F_MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA
+	;COLISAO
+	JMP RETURN_MOVE_FANTASMA
+	
+FANTASMA_BAIXO:
+	;CALL F_MOVIMENTO_PARA_CIMA
+	;COLISAO
+	JMP RETURN_MOVE_FANTASMA
+	
+FANTASMA_CIMA:
+	;CALL F_MOVIMENTO_PARA_BAIXO
+	;COLISAO
+	JMP RETURN_MOVE_FANTASMA
+	
+FANTASMA_ESQUERDA:
+	;CALL F_MOVIMENTO_DIREITA
+	;COLISAO
+	JMP RETURN_MOVE_FANTASMA
+	
+FANTASMA_DIREITA:
+	;CALL F_MOVIMENTO_DIREITA
+	;COLISAO
+	JMP RETURN_MOVE_FANTASMA
+	
+RETURN_MOVE_FANTASMA:
+	PUSH R6
+	PUSH R5
+	PUSH R4
+	PUSH R3
+	PUSH R2
+	PUSH R1
+	RET
