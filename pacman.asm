@@ -360,6 +360,7 @@ INICIO:
     CALL FUNCAO_DELAY
     CALL FUNCAO_DELAY
 	CALL FECHAR_OU_NAO
+	MOV R0, 0
     JMP ESPERA_TECLADO
     MOVIMENTO_DELAY:
     CALL FUNCAO_DELAY
@@ -560,7 +561,6 @@ VERIFICA_INPUT:
 
     TECLA_PRESS_D:
     CALL PAUSA_JOGO
-    MOV R0, 0
     JMP INICIO
 
     TECLA_PRESS_E:
@@ -612,10 +612,11 @@ PAUSA_JOGO:
     CMP R0, R2
     JNZ PAUSA_JOGO_LOOP_2 ; Caso a tecla premida nao seja o D vai continuar no loop
     SUB R1, 1
+    CALL DESENHA_GRELHA
     MOV [DEF_ESTADO_JOGO], R1 ; Vai alterar o estado do jogo para em execucao
     MOV R1, 1
+    CALL FUNCAO_DELAY
     MOV  [SELECIONA_FUNDO], R1 ; Vai selecionar o fundo de jogo em execucao
-    CALL DESENHA_GRELHA ; Vai Voltar a desenhar todos os elementos do jogo
     CALL DESENHA_NINHO
     CALL DESENHA_REBUCADO
     CALL DESENHA_PACMAN_PARADO
@@ -629,6 +630,7 @@ PAUSA_JOGO:
     CALL DESENHA_REBUCADO
     MOV R9, 0
     MOV [PAUSA_SOM], R1
+
     POP R3
     POP R2
     POP R1
