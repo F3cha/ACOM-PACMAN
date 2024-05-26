@@ -94,7 +94,7 @@ DEF_FANTASMA:			    ; tabela que define o fantasma
 	BYTE 1, 0, 1, 0, 1
 
 DEF_REBUCADO:
-	WORD RED
+	WORD RED                ; tabela que define os rebuçados 
     BYTE 4
     BYTE 4
     BYTE 1, 0, 0, 1
@@ -217,7 +217,7 @@ DEF_EXPLOSAO_FINAL:         ; tabela que define a explosao final do pacman
 	BYTE 0, 1, 0, 1, 0
 	BYTE 1, 0, 0, 0, 1
 
-DEF_NINHO_PACMAN:
+DEF_NINHO_PACMAN:           ; tabela que define o ninho/casa do pacman 
 	WORD BLUE_L1
 	BYTE 010H
 	BYTE 09H
@@ -231,7 +231,7 @@ DEF_NINHO_PACMAN:
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
 
-DEF_LINHA_FECHA_NINHO:
+DEF_LINHA_FECHA_NINHO:     ; apos o pacman sair, o ninho vai ter estas linhas que fecham-o
 	WORD BLUE_L1
 	BYTE 8
 	BYTE 1
@@ -306,10 +306,10 @@ PLACE   0   ; o código tem de começar em 0000H
     MOV R1, 0
     MOV  [SELECIONA_FUNDO], R1	; muda o cenário de fundo (o valor de R1 não é relevante)
     MOV R1, 1
-    MOV [EMITIR_SOM], R1
+    MOV [EMITIR_SOM], R1 ; emite o som do jogo 
 	CALL RESET_POSICAO
     MENU_INICIAL:
-    CALL CHAMA_TECLADO
+    CALL CHAMA_TECLADO  ; inicia a funcao do teclado e espera que a tecla c seja primida para começar o jogo 
     MOV R5, TECLA_C
     CMP R0, R5
     JZ JOGAR
@@ -332,7 +332,7 @@ PLACE   0   ; o código tem de começar em 0000H
 	CALL DESENHA_NINHO
 	CALL DESENHA_PACMAN_PARADO
 	MOV R9, DEF_CORDS_REBUCADO1_SPAWN
-	CALL DESENHA_REBUCADO
+	CALL DESENHA_REBUCADO                           ; vai desenhar no ecra os diferentes objetos do jogo nas suas respetivas coordenadas 
 	MOV R9, DEF_CORDS_REBUCADO2_SPAWN
 	CALL DESENHA_REBUCADO
 	MOV R9, DEF_CORDS_REBUCADO3_SPAWN
@@ -346,18 +346,17 @@ PLACE   0   ; o código tem de começar em 0000H
     ESPERA_TECLADO:
     CALL CHAMA_TECLADO
     CMP R0, 0
-    JZ ESPERA_TECLADO_PARADO
+    JZ ESPERA_TECLADO_PARADO                    
     MOVIMENTO:
     CMP R0, R2
     JZ MOVIMENTO_DELAY
     MOVIMENTO_CONTINUO:
-    CALL EMITIR_1_SOM
     JMP VERIFICA_INPUT
 INICIO:
 	MOV R9, 0
 	CALL COME_FRUTA
     MOV R2, R0
-    CALL FUNCAO_DELAY
+    CALL FUNCAO_DELAY                    
     CALL FUNCAO_DELAY
 	CALL FECHAR_OU_NAO
 	MOV R0, 0
@@ -464,7 +463,7 @@ apagar_boneco:
 VERIFICA_INPUT:
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
 	ADD R10, 1
-    MOV R2, TECLA_0
+    MOV R2, TECLA_0                                    ; em geral, para todas as funções abaixo, irá ver que tecla está ser premida e irá executar a funcao respetiva 
     CMP R0, R2
     JZ TECLA_PRESS_0
 
@@ -572,7 +571,7 @@ FIM:
 EMITIR_1_SOM:
     PUSH R9
     MOV R9, 0
-    MOV [EMITIR_SOM], R9
+    MOV [EMITIR_SOM], R9            ;ira emitir o som escolhido 
     POP R9
     RET
 
@@ -583,7 +582,7 @@ TERMINAR_JOGO:
     PUSH R1
     MOV R1, 1
     MOV [APAGA_ECRÃ], R1
-    MOV [DEF_ESTADO_JOGO], R1
+    MOV [DEF_ESTADO_JOGO], R1               ; move o bit de estado que termina jogo 
     MOV R1, 1
     MOV  [SELECIONA_FUNDO], R1
     POP R1
@@ -622,7 +621,7 @@ PAUSA_JOGO:
     CALL DESENHA_PACMAN_PARADO
     MOV R9, DEF_CORDS_REBUCADO1_SPAWN
     CALL DESENHA_REBUCADO
-    MOV R9, DEF_CORDS_REBUCADO2_SPAWN
+    MOV R9, DEF_CORDS_REBUCADO2_SPAWN         ; ira voltar a desenhar os objetos como estavam antes de do jogo ter sido pausado 
     CALL DESENHA_REBUCADO
     MOV R9, DEF_CORDS_REBUCADO3_SPAWN
     CALL DESENHA_REBUCADO
@@ -651,7 +650,7 @@ int_0:
     POP R1
     RFE
 
-int_1:
+int_1:                ; interrupcao que faz o fantasma se mexer 
 	PUSH R1
 	PUSH R2
 	PUSH R3
@@ -670,15 +669,15 @@ int_1:
 	MOV R5, 0
 	MOV R6, 0
 	MOV R7, 0
-	MOV R8, 0
+	MOV R8, 0    
 	MOV R9, 0
 	MOV R10, 0
 	MOV R11, 0
 	MOV R1, [DEF_ESTADO_JOGO]
-    CMP R1, 1
+    CMP R1, 1                           ; se o jogo estiver em pausa, nao vai fazer o fantasma mexer-se
     JZ FIM_INT_1
 	MOV R2, DEF_CORDS_PACMAN_SPAWN
-	MOV R9, DEF_CORDS_FANTASMA1_SPAWN
+	MOV R9, DEF_CORDS_FANTASMA1_SPAWN        
 	CALL MOVE_FANTASMA
 	MOV R1, 0
 	MOV R2, 0
@@ -738,7 +737,7 @@ UPDATE_DISPLAY:
     MOV [R3], R11
 	JMP  CICLO_CONTADOR
 
-TRANSFORMA_DECIMAL_UP:
+TRANSFORMA_DECIMAL:
     MOV R8, 09AH
     CMP R11, R8
     JZ E_100
@@ -746,7 +745,7 @@ TRANSFORMA_DECIMAL_UP:
     CMP R11, R8
     JZ E_200
     MOV R8, 29AH
-    CMP R11, R8
+    CMP R11, R8                      ;se o numero for 100, 200, 300 etc... , irá inserir esses numeros no display de energia, caso contrario ira converter no respetivo numero decimal 
     JZ E_300
     MOV R8, 39AH
     CMP R11, R8
@@ -768,10 +767,10 @@ TRANSFORMA_DECIMAL_UP:
     JZ E_900
     MOV R8, 0AH
     MOV R9, R11
-    AND R9, R8
+    AND R9, R8          ; mascara para isolar os bits 
     CMP R9, R8
     JNZ UPDATE_DISPLAY
-    ADD R11, 6H
+    ADD R11, 6H          
     JMP UPDATE_DISPLAY
 
 
@@ -810,8 +809,8 @@ E_99:
 CONTADOR_SOMA:
     CMP R11, R5 ; vai verificar se o contador esta no limite
     JZ RETURN_CONTADOR
-    INC R11
-    JMP TRANSFORMA_DECIMAL_UP
+    INC R11     ; se estiver tudo bem irá incrementar o contador 
+    JMP TRANSFORMA_DECIMAL
 
 RETURN_CONTADOR:
 POP R9
@@ -868,7 +867,7 @@ TECLADO_SHIFT_LINHA:
     JMP TECLADO_SHIFT_LINHA
 
 TECLADO_SEM_INPUT:
-    MOV R0, 0
+    MOV R0, 0       ; se nao receber nenhum input nao ira executar nada 
     JMP TECLADO_RET
 
 TECLADO_CODIFICAR:
@@ -911,7 +910,7 @@ DESENHA_NINHO:
 	PUSH R1
 	PUSH R9
 	MOV R1, DEF_NINHO_PACMAN
-	MOV R9, DEF_CORDS_NINHO_SPAWN
+	MOV R9, DEF_CORDS_NINHO_SPAWN          ; vai desenhar o ninho nas coordenadas indicadas 
 	CALL CRIAR_BONECO
 	POP R9
 	POP R1
@@ -921,7 +920,7 @@ DESENHA_PACMAN_DIREITA:
 	PUSH R1
 	PUSH R9
 	MOV R1, DEF_PACMAN_DIREITA
-	MOV R9, DEF_CORDS_PACMAN_SPAWN
+	MOV R9, DEF_CORDS_PACMAN_SPAWN       ; as funcoes abaixo irao desenhar o pacman em diferentes posicoes 
 	CALL CRIAR_BONECO
 	POP R9
 	POP R1
@@ -1010,7 +1009,7 @@ DESENHA_PACMAN_DIAGONAL_D_B:
 DESENHA_FANTASMA:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_FANTASMA
+	MOV R1, DEF_FANTASMA         ; vai desenhar os fantasmas 
 	CALL CRIAR_BONECO
 	POP R9
 	POP R1
@@ -1019,8 +1018,8 @@ DESENHA_FANTASMA:
 DESENHA_REBUCADO:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_REBUCADO
-	CALL CRIAR_BONECO
+	MOV R1, DEF_REBUCADO    
+	CALL CRIAR_BONECO          ;vai desenhar os rebucados 
 	POP R9
 	POP R1
 	RET
@@ -1035,7 +1034,7 @@ DESENHA_REBUCADO:
 APAGAR_BONECO_5X5:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_PACMAN_DIREITA
+	MOV R1, DEF_PACMAN_DIREITA    ; apaga o pacman ou fantasma 
 	CALL apagar_boneco
 	POP R9
 	POP R1
@@ -1044,7 +1043,7 @@ APAGAR_BONECO_5X5:
 APAGAR_FRUTA:
 	PUSH R1
 	PUSH R9
-	MOV R1, DEF_REBUCADO
+	MOV R1, DEF_REBUCADO     ;apaga o rebucado 
 	CALL apagar_boneco
 	POP R9
 	POP R1
@@ -1066,14 +1065,14 @@ MOVIMENTO_ESQUERDA:
     MOV R2, BLUE_L1
     CALL VERIFICAR_COLISAO
 	CMP R11, 0
-	JZ OBSTACULO_ESQ
-	CALL APAGAR_BONECO_5X5
+	JZ OBSTACULO_ESQ                   ; as funcoes abaixo irao, primeiramente ver se na proxima posicao desejada ha algum obstaculo presente, apenas ira continuar se a posicao estiver livre  
+	CALL APAGAR_BONECO_5X5		        
 	MOV R2, [R9]
-	SUB R2, 1
+	SUB R2, 1                          ; vai atualizar as coordenadas do boneco para o nova posicao 
 	MOV [R9], R2
 	CMP R10, 0
 	JZ PRE_DESENHO_FANTASMA
-	CALL DESENHA_PACMAN_ESQUERDA
+	CALL DESENHA_PACMAN_ESQUERDA       ; como a posicao esta livre vai desenhar o boneco na posicao desejada 
 	OBSTACULO_ESQ:
 	POP R11
 	POP R9
@@ -1306,7 +1305,7 @@ VERIFICAR_COLISAO:
 
 
 	MOV R5, TECLA_0
-	CMP R0, R5
+	CMP R0, R5               ; as funcoes abaixo irao ver se ha colisao consoante a tecla de movimento premida 
 	JZ TECLA_0_COLISAO
 
 	MOV R5, TECLA_1
@@ -1338,7 +1337,7 @@ VERIFICAR_COLISAO:
 	JZ TECLA_A_COLISAO
 
 TECLA_0_COLISAO:
-	SUB R4, 1
+	SUB R4, 1              ; vai mudar as coordenadas para a posicao futura para depois ver se e possivel continuar com o movimento 
 	SUB R3, 1
 	JMP CICLO_COLISAO
 
@@ -1376,18 +1375,18 @@ TECLA_A_COLISAO:
 CICLO_COLISAO:
 	MOV [DEFINE_COLUNA], R4
 	MOV [DEFINE_LINHA], R3
-	MOV R5, [LE_VALOR_PIXEL]
+	MOV R5, [LE_VALOR_PIXEL]     ; vai iniciar um ciclo que verifica as colunas de uma determinada linha e 
 	CMP R5, R2
 	JZ FIM_VERIFICAR_PIXEL
 	SUB R7, 1
 	ADD R4, 1
-	CMP R7,0
-	JZ MUDA_LINHA_COLISAO
+	CMP R7,0                     ; quando chegar ao fim da linha
+	JZ MUDA_LINHA_COLISAO		 ; vai saltar para a linha seguinte 
 	JMP CICLO_COLISAO
 
 MUDA_LINHA_COLISAO:
 	MOV R7, 5
-	SUB R4,5
+	SUB R4,5                     ; muda a linha e volta a inicializar o ciclo anterior 
 	SUB R8,1
 	ADD R3, 1
 	CMP R8, 0
@@ -1395,7 +1394,7 @@ MUDA_LINHA_COLISAO:
 	JMP CICLO_COLISAO
 
 COLISAO_VALIDA:
-	MOV R11, 1
+	MOV R11, 1                   ; se houver colisao 
 
 FIM_VERIFICAR_PIXEL:
 	POP R8
@@ -1453,7 +1452,7 @@ RESET_POSICAO:
 ;
 ; Argumento : Não queriamos estar a gastar memoria para fazer a tabela
 ;
-; buraco 14-19
+; buraco 14-19 (portais)
 ; **********************************************************************
 LIMITE_COLUNAS EQU 63
 LIMITE_LINHAS EQU 31
@@ -1477,7 +1476,7 @@ LINHA_COMPLETA:
     ADD R2, 1
     MOV [DEFINE_COLUNA], R2
     MOV [DEFINE_PIXEL], R3
-    CMP R2, R4
+    CMP R2, R4                            ;quando a linha ja foi pintada vai saltar para a proxima 
     JZ ULTIMA_LINHA
     JMP LINHA_COMPLETA
 
@@ -1492,7 +1491,7 @@ ULTIMA_LINHA:
     JMP LINHA_COMPLETA
 
 
-FAZER_MIOLO:
+FAZER_MIOLO:                 ; vai pintar as linhas da grelha interior que so tem um pixel 
     MOV R1, 1
     MOV R2, 0
 
@@ -1501,13 +1500,13 @@ PINTAR_MIOLO:
     ADD R1, 1
     MOV [DEFINE_COLUNA], R2
     MOV [DEFINE_PIXEL], R3
-    MOV [DEFINE_COLUNA], R4
+    MOV [DEFINE_COLUNA], R4     
     MOV [DEFINE_PIXEL], R3
     CMP R1, R6
     JNZ PINTAR_MIOLO
 	MOV R1, 13
 	MOV R3, 0
-	FAZER_PORTAIS:
+	FAZER_PORTAIS:            ; vai remover os pixeis dos portais 
 	ADD R1, 1
 	MOV [DEFINE_LINHA], R1
 	MOV [DEFINE_COLUNA], R2
@@ -1559,7 +1558,7 @@ MOVE_FANTASMA:
 	CMP R5, R3
 	JZ FANTASMA_MESMA_LINHA_PACMAN
 	CMP R6, R4
-	JZ FANTASMA_MESMA_COLUNA_PACMAN
+	JZ FANTASMA_MESMA_COLUNA_PACMAN          ; ira verificar se o fantasma se localiza na mesma coluna ou na mesma linha que o pacman 
 	CMP R5, R3
 	JN FANTASMA_POR_CIMA_DO_PACMAN
 	CMP R5, R3
@@ -1592,14 +1591,14 @@ FANTASMA_MESMA_COLUNA_PACMAN:
 
 
 FANTASMA_DIREITA_BAIXO1:
-	MOV R0, 0044H
-	CALL MOVIMENTO_DIAGONAL_INFERIOR_DIREITA
+	MOV R0, TECLA_A
+	CALL MOVIMENTO_DIAGONAL_INFERIOR_DIREITA         ; as funcoes abaixo irao verificar qual o caminho que o fantasma tem de percorrer (diagonal), se o caminho nao for possivel (colisoes) vai percorrer outro caminho valido 
 	CMP R11, 0
 	JZ FANTASMA_DIREITA_BAIXO2
 	JMP RETURN_MOVE_FANTASMA
 
 FANTASMA_DIREITA_BAIXO2:
-	MOV R0, 0042H
+	MOV R0, TECLA_9
 	CALL MOVIMENTO_PARA_BAIXO
 	CMP R11, 0
 	JZ FANTASMA_DIREITA
@@ -1607,14 +1606,14 @@ FANTASMA_DIREITA_BAIXO2:
 
 
 FANTASMA_ESQUERDA_BAIXO1:
-	MOV R0, 0041H
+	MOV R0, TECLA_8
 	CALL MOVIMENTO_DIAGONAL_INFERIOR_ESQUERDA
 	CMP R11, 0
 	JZ FANTASMA_ESQUERDA_BAIXO2
 	JMP RETURN_MOVE_FANTASMA
 
 FANTASMA_ESQUERDA_BAIXO2:
-	MOV R0, 0042H
+	MOV R0, TECLA_9
 	CALL MOVIMENTO_PARA_BAIXO
 	CMP R11, 0
 	JZ FANTASMA_ESQUERDA
@@ -1622,14 +1621,14 @@ FANTASMA_ESQUERDA_BAIXO2:
 
 
 FANTASMA_DIREITA_CIMA1:
-	MOV R0, 0014H
+	MOV R0, TECLA_2
 	CALL MOVIMENTO_DIAGONAL_SUPERIOR_DIREITA
 	CMP R11, 0
 	JZ FANTASMA_DIREITA_CIMA2
 	JMP RETURN_MOVE_FANTASMA
 
 FANTASMA_DIREITA_CIMA2:
-	MOV R0, 0012H
+	MOV R0, TECLA_1
 	CALL MOVIMENTO_PARA_CIMA
 	CMP R11, 0
 	JZ FANTASMA_DIREITA
@@ -1637,14 +1636,14 @@ FANTASMA_DIREITA_CIMA2:
 
 
 FANTASMA_ESQUERDA_CIMA1:
-	MOV R0, 0011H
+	MOV R0, TECLA_0
 	CALL MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA
 	CMP R11, 0
 	JZ FANTASMA_ESQUERDA_CIMA2
 	JMP RETURN_MOVE_FANTASMA
 
 FANTASMA_ESQUERDA_CIMA2:
-	MOV R0, 0012H
+	MOV R0, TECLA_1
 	CALL MOVIMENTO_PARA_CIMA
 	CMP R11, 0
 	JZ FANTASMA_ESQUERDA
@@ -1652,22 +1651,22 @@ FANTASMA_ESQUERDA_CIMA2:
 
 
 FANTASMA_CIMA:
-	MOV R0, 0012H
+	MOV R0, TECLA_1
 	CALL MOVIMENTO_PARA_CIMA
 	JMP RETURN_MOVE_FANTASMA
 
 FANTASMA_BAIXO:
-	MOV R0, 0042H
+	MOV R0, TECLA_9
 	CALL MOVIMENTO_PARA_BAIXO
 	JMP RETURN_MOVE_FANTASMA
 
 FANTASMA_DIREITA:
-	MOV R0, 0024H
+	MOV R0, TECLA_6
 	CALL MOVIMENTO_DIREITA
 	JMP RETURN_MOVE_FANTASMA
 
 FANTASMA_ESQUERDA:
-	MOV R0, 0021H
+	MOV R0, TECLA_4
 	CALL MOVIMENTO_ESQUERDA
 	JMP RETURN_MOVE_FANTASMA
 
@@ -1699,7 +1698,7 @@ FECHA_NINHO:
 	MOVB R2, [R9]
 	ADD R2, R3
     MOVB [R9], R2
-	CALL CRIAR_BONECO
+	CALL CRIAR_BONECO                              ; vai fechar o ninho com as linhas 
 	JMP FIM_DA_FUNC
 	POP R9
     POP R4
@@ -1713,8 +1712,8 @@ FECHAR_OU_NAO:
 	PUSH R2
 	PUSH R3
 	PUSH R4
-	PUSH R9
-	MOV R1, DEF_ESTADO_NINHO
+	PUSH R9                  
+	MOV R1, DEF_ESTADO_NINHO       ; se o pacman ja saiu do ninho, vai fechar o ninho com as linhas desenhadas 
 	MOVB R2, [R1]
 	CMP R2, 1
 	JZ FIM_DA_FUNC
@@ -1755,22 +1754,22 @@ COME_FRUTA:
 	MOV R2, RED
 	MOV R3, POSICAO_INICIAL_PACMAN_X
 	MOV R4, POSICAO_INICIAL_PACMAN_Y
-	CALL VERIFICAR_COLISAO
-	CMP R11, 0
-	JZ PACMAN_VAI_COMER_FRUTA
+	CALL VERIFICAR_COLISAO              ; vai verificar se ha colisao entre o pacman e o rebuçado 
+	CMP R11, 0                          
+	JZ PACMAN_VAI_COMER_FRUTA           ; se a colisao e valida, vai saltar para a funcao referenciada
 	JMP RETURN_APAGAR_FRUTA
 
 PACMAN_VAI_COMER_FRUTA:
 	MOV R1, DEF_NUMERO_REBUCADOS
 	MOVB R2, [R1]
-	CMP R2, 0
+	CMP R2, 0                          ; vai diminuir o numero de rebucados e vai verificar qual foi comido 
 	JZ QUAL_REBUCADO
 	SUB R2, 1
 	MOV [R1], R2
 
 QUAL_REBUCADO:
 	MOV R1, DEF_CORDS_PACMAN_SPAWN
-	MOVB R2, [R1]
+	MOVB R2, [R1]                      ; vai verificar qual foi o rebuçado comido 
 	CMP R2, R3
 	JLE REBUCADOS_CIMA
 
@@ -1788,15 +1787,15 @@ REBUCADOS_BAIXO:
 
 REBUCADOS_CIMA:
 	ADD R1, 1
-	MOVB R2, [R1]
+	MOVB R2, [R1]    
 	CMP R2, R4
 	JLE REBUCADO1
 
 	CMP R2, R4
 	JGE REBUCADO3
-
+   
 REBUCADO1:
-	MOV R9, DEF_CORDS_REBUCADO1_SPAWN
+	MOV R9, DEF_CORDS_REBUCADO1_SPAWN                   ; vai apagar o rebucado respetivo 
 	CALL APAGAR_FRUTA
 	JMP RETURN_APAGAR_FRUTA
 REBUCADO2:
@@ -1804,7 +1803,7 @@ REBUCADO2:
 	CALL APAGAR_FRUTA
 	JMP RETURN_APAGAR_FRUTA
 REBUCADO3:
-	MOV R9, DEF_CORDS_REBUCADO3_SPAWN
+	MOV R9, DEF_CORDS_REBUCADO3_SPAWN            
 	CALL APAGAR_FRUTA
 	JMP RETURN_APAGAR_FRUTA
 REBUCADO4:
