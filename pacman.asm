@@ -254,7 +254,7 @@ DEF_PAR:
     BYTE 0
 
 DEF_ESTADO_JOGO:
-    BYTE 0 ; 0 - Jogo em execucao, 1 - Jogo em pausa, 2 - Jogo terminado
+    WORD 0 ; 0 - Jogo em execucao, 1 - Jogo em pausa, 2 - Jogo terminado
 
 INT_TABLE:
 	WORD	int_0	; Relogio tempo
@@ -283,9 +283,9 @@ INT_TABLE:
      MOV R2, 0
      MOV R1, 1
      MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
- 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
-    CALL DESENHA_GRELHA
- 	MOV BTE, INT_TABLE
+ 	 MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
+     CALL DESENHA_GRELHA
+ 	 MOV BTE, INT_TABLE
 
  	EI
  	EI0
@@ -412,6 +412,7 @@ apagar_boneco:
 ; Argumentos: Entrada- R0
 ;
 ; **********************************************************************
+
 VERIFICA_INPUT:
 	MOV R9, DEF_CORDS_PACMAN_SPAWN
 	ADD R10, 1
@@ -449,10 +450,12 @@ VERIFICA_INPUT:
 
     MOV R2, TECLA_D
     CMP R0, R2
-    JZ PRESSIONOU_D
-    JMP INICIO
-    PRESSIONOU_D:
-    CALL JOGO_EM_PAUSA
+    JZ TECLA_PRESS_D
+
+    MOV R2, TECLA_E
+    CMP R0, R2
+    JZ TECLA_PRESS_E
+
 
     JMP INICIO
 
@@ -504,6 +507,12 @@ VERIFICA_INPUT:
 	CALL EMITIR_1_SOM
     JMP INICIO
 
+    TECLA_PRESS_D:
+    CALL PAUSA_JOGO
+    JMP INICIO
+
+    TECLA_PRESS_E:
+    CALLF TERMINAR_JOGO
 
 FIM:
 	JMP FIM
@@ -515,35 +524,65 @@ EMITIR_1_SOM:
     POP R9
     RET
 
+; **********************************************************************
+; TERMINAR_JOGO - Vai terminar o jogo
+; **********************************************************************
+TERMINAR_JOGO:
+    PUSH R1
+    MOV R1, 1
+    MOV [APAGA_ECRÃ], R1
+    MOV [DEF_ESTADO_JOGO], R1
+    MOV R1, 1
+    MOV  [SELECIONA_FUNDO], R1
+    POP R1
+    RETF
+; *********************************************************************************************************]
+; PAUSA_JOGO - Vai pausar o jogo
 ; *********************************************************************************************************
-; JOGO_EM_PAUSA - Vai parar o jogo e esperar pela tecla D para continuar
-; *********************************************************************************************************
-JOGO_EM_PAUSA:
-PUSH R0
-PUSH R1
-PUSH R2
-PUSH R3
-MOV R1, R0
-CICLO:
-CALL CHAMA_TECLADO
-CMP R1, R0
-JZ CICLO
-MOV R3, TECLA_D
-CMP R0, R3
-JZ FIM_PAUSA
-JMP CICLO
-FIM_PAUSA:
-POP R3
-POP R2
-POP R1
-POP R0
-RET
+PAUSA_JOGO:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    MOV R1, 1
+    MOV [DEF_ESTADO_JOGO], R1
+    MOV R2, 2
+    MOV  [SELECIONA_FUNDO], R2
+    MOV [APAGA_ECRÃ], R1
+    MOV R2, TECLA_D
+    PAUSA_JOGO_LOOP:
+    CALL CHAMA_TECLADO
+    CMP R0, R2
+    JZ PAUSA_JOGO_LOOP
+    PAUSA_JOGO_LOOP_2:
+    CALL CHAMA_TECLADO
+    CMP R0, R2
+    JNZ PAUSA_JOGO_LOOP_2
+    SUB R1, 1
+    MOV [DEF_ESTADO_JOGO], R1
+    MOV R1, 1
+    MOV  [SELECIONA_FUNDO], R1
+    CALL DESENHA_GRELHA
+    CALL DESENHA_NINHO
+    CALL DESENHA_PACMAN_PARADO
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
+
 
 ; *********************************************************************************************************
 ; Interrupcoes
 ; *********************************************************************************************************
 int_0:
+    PUSH R1
+    MOV R1, [DEF_ESTADO_JOGO]
+    CMP R1, 1
+    JZ FIM_INT_0
     CALL CALL_CONTADOR ; Vai chamar o contador enquanto n\ao apanhar 1 fruta
+    FIM_INT_0:
+    POP R1
     RFE
 
 int_1:
@@ -569,6 +608,9 @@ int_1:
 	MOV R9, 0
 	MOV R10, 0
 	MOV R11, 0
+	MOV R1, [DEF_ESTADO_JOGO]
+    CMP R1, 1
+    JZ FIM_INT_1
 	MOV R2, DEF_CORDS_PACMAN_SPAWN
 	MOV R9, DEF_CORDS_FANTASMA1_SPAWN
 	CALL MOVE_FANTASMA
@@ -586,6 +628,7 @@ int_1:
 	MOV R2, DEF_CORDS_PACMAN_SPAWN
 	MOV R9, DEF_CORDS_FANTASMA2_SPAWN
 	CALL MOVE_FANTASMA
+	FIM_INT_1:
 	POP R11
 	POP R10
 	POP R9
@@ -625,12 +668,9 @@ JMP CONTADOR_SOMA
 CICLO_CONTADOR:
 JMP RETURN_CONTADOR ; Caso a tecla nao esteja premida ele vai retornar
 
-
-
 UPDATE_DISPLAY:
     MOV [R3], R11
 	JMP  CICLO_CONTADOR
-
 
 TRANSFORMA_DECIMAL_UP:
     MOV R8, 09AH
@@ -706,7 +746,6 @@ CONTADOR_SOMA:
     JZ RETURN_CONTADOR
     INC R11
     JMP TRANSFORMA_DECIMAL_UP
-
 
 RETURN_CONTADOR:
 POP R9
