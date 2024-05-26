@@ -230,13 +230,13 @@ DEF_NINHO_PACMAN:
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
-	
+
 DEF_LINHA_FECHA_NINHO:
 	WORD BLUE_L1
 	BYTE 8
 	BYTE 1
 	BYTE 1, 1, 1, 1, 1, 1, 1, 1
-	
+
 DEF_CORDS_LINHA_FECHA:
 	BYTE 14
 	BYTE 28
@@ -276,16 +276,16 @@ DEF_CORDS_REBUCADO3_SPAWN:
 DEF_CORDS_REBUCADO4_SPAWN:
     BYTE 26
     BYTE 58
-	
+
 DEF_PAR:
     BYTE 0
-	
+
 DEF_ESTADO_NINHO:
 	WORD 0
 
 DEF_NUMERO_REBUCADOS:
 	BYTE 4
-	
+
 DEF_ESTADO_JOGO:
     WORD 0 ; 0 - Jogo em execucao, 1 - Jogo em pausa, 2 - Jogo terminado
 
@@ -467,6 +467,10 @@ VERIFICA_INPUT:
     CMP R0, R2
     JZ TECLA_PRESS_0
 
+    MOV R2, [DEF_NUMERO_REBUCADOS]
+    CMP R2, 0
+    JZ TECLA_PRESS_E
+
     MOV R2, TECLA_1
     CMP R0, R2
     JZ TECLA_PRESS_1
@@ -559,7 +563,7 @@ VERIFICA_INPUT:
     JMP INICIO
 
     TECLA_PRESS_E:
-    CALLF TERMINAR_JOGO
+    CALL TERMINAR_JOGO
 
 FIM:
 	JMP FIM
@@ -582,7 +586,7 @@ TERMINAR_JOGO:
     MOV R1, 1
     MOV  [SELECIONA_FUNDO], R1
     POP R1
-    RETF
+    RET
 ; *********************************************************************************************************]
 ; PAUSA_JOGO - Vai pausar o jogo
 ; *********************************************************************************************************
@@ -592,27 +596,37 @@ PAUSA_JOGO:
     PUSH R2
     PUSH R3
     MOV R1, 1
-    MOV [DEF_ESTADO_JOGO], R1
+    MOV [DEF_ESTADO_JOGO], R1 ; vai alterar o estado do jogo para pausado
     MOV R2, 2
-    MOV  [SELECIONA_FUNDO], R2
-    MOV [EMITIR_SOM], R1
-    MOV [APAGA_ECRÃ], R1
-    MOV R2, TECLA_D
+    MOV  [SELECIONA_FUNDO], R2 ; seleciona o fundo de jogo pausado
+    MOV [EMITIR_SOM], R1 ; Vai comecar a musica
+    MOV [APAGA_ECRÃ], R1 ; e apagar todos os pixeis do ecra
+    MOV R2, TECLA_D ;Vai guardar a tecla D em R2
     PAUSA_JOGO_LOOP:
-    CALL CHAMA_TECLADO
-    CMP R0, R2
-    JZ PAUSA_JOGO_LOOP
+    CALL CHAMA_TECLADO ; Vai chamar o teclado
+    CMP R0, R2 ; Vai comparar a tecla premida com a tecla D
+    JZ PAUSA_JOGO_LOOP ; E caso a tecla D esteja premida vai continuar no loop
     PAUSA_JOGO_LOOP_2:
-    CALL CHAMA_TECLADO
+    CALL CHAMA_TECLADO ; Vai chamar o teclado
     CMP R0, R2
-    JNZ PAUSA_JOGO_LOOP_2
+    JNZ PAUSA_JOGO_LOOP_2 ; Caso a tecla premida nao seja o D vai continuar no loop
     SUB R1, 1
-    MOV [DEF_ESTADO_JOGO], R1
+    MOV [DEF_ESTADO_JOGO], R1 ; Vai alterar o estado do jogo para em execucao
     MOV R1, 1
-    MOV  [SELECIONA_FUNDO], R1
-    CALL DESENHA_GRELHA
+    MOV  [SELECIONA_FUNDO], R1 ; Vai selecionar o fundo de jogo em execucao
+    CALL DESENHA_GRELHA ; Vai Voltar a desenhar todos os elementos do jogo
     CALL DESENHA_NINHO
+    CALL DESENHA_REBUCADO
     CALL DESENHA_PACMAN_PARADO
+    MOV R9, DEF_CORDS_REBUCADO1_SPAWN
+    CALL DESENHA_REBUCADO
+    MOV R9, DEF_CORDS_REBUCADO2_SPAWN
+    CALL DESENHA_REBUCADO
+    MOV R9, DEF_CORDS_REBUCADO3_SPAWN
+    CALL DESENHA_REBUCADO
+    MOV R9, DEF_CORDS_REBUCADO4_SPAWN
+    CALL DESENHA_REBUCADO
+    MOV R9, 0
     MOV [PAUSA_SOM], R1
     POP R3
     POP R2
@@ -998,7 +1012,7 @@ DESENHA_FANTASMA:
 	POP R9
 	POP R1
 	RET
-	
+
 DESENHA_REBUCADO:
 	PUSH R1
 	PUSH R9
@@ -1007,7 +1021,7 @@ DESENHA_REBUCADO:
 	POP R9
 	POP R1
 	RET
-	
+
 ; **********************************************************************
 ; FUNCOES_APAGAR_FIGURA: Para apagar uma figura qualquer
 ;
@@ -1664,14 +1678,14 @@ RETURN_MOVE_FANTASMA:
 	POP R2
 	POP R0
 	RET
-	
+
 ; **********************************************************************
 ; FECHA_NINHO: Fecha o ninho para o pacman nao conseguir voltar a entrar
 ;
 ; Argumento : Nenhum
 ;
 ; **********************************************************************
-	
+
 FECHA_NINHO:
 	MOV R3, 8
 	MOV R1, DEF_LINHA_FECHA_NINHO
@@ -1684,8 +1698,13 @@ FECHA_NINHO:
     MOVB [R9], R2
 	CALL CRIAR_BONECO
 	JMP FIM_DA_FUNC
+	POP R9
+    POP R4
+    POP R3
+    POP R2
+    POP R1
 	RET
-	
+
 FECHAR_OU_NAO:
 	PUSH R1
 	PUSH R2
@@ -1696,7 +1715,7 @@ FECHAR_OU_NAO:
 	MOVB R2, [R1]
 	CMP R2, 1
 	JZ FIM_DA_FUNC
-	
+
 	MOV R3, 9
 	MOV R4, 23
 	MOV R1, DEF_CORDS_PACMAN_SPAWN
@@ -1714,7 +1733,7 @@ FIM_DA_FUNC:
 	RET
 
 ; **********************************************************************
-; COME_FRUTA: O pacman quando tocar numa fruta, vai "come-la". 
+; COME_FRUTA: O pacman quando tocar numa fruta, vai "come-la".
 ;
 ; Argumento : R0 - Input da tecla
 ;
@@ -1728,7 +1747,7 @@ COME_FRUTA:
 	PUSH R4
 	PUSH R9
 	PUSH R11
-	
+
 	MOV R1, DEF_CORDS_PACMAN_SPAWN
 	MOV R2, RED
 	MOV R3, POSICAO_INICIAL_PACMAN_X
@@ -1737,30 +1756,30 @@ COME_FRUTA:
 	CMP R11, 0
 	JZ PACMAN_VAI_COMER_FRUTA
 	JMP RETURN_APAGAR_FRUTA
-	
+
 PACMAN_VAI_COMER_FRUTA:
 	MOV R1, DEF_NUMERO_REBUCADOS
 	MOVB R2, [R1]
-	SUB R2, 1
 	CMP R2, 0
-	JZ VICTORY
+	JZ QUAL_REBUCADO
+	SUB R2, 1
 	MOV [R1], R2
-	
+
 QUAL_REBUCADO:
 	MOV R1, DEF_CORDS_PACMAN_SPAWN
 	MOVB R2, [R1]
 	CMP R2, R3
-	JLE REBUCADOS_CIMA 
-	
+	JLE REBUCADOS_CIMA
+
 	CMP R2, R3
 	JGE REBUCADOS_BAIXO
-	
+
 REBUCADOS_BAIXO:
 	ADD R1, 1
 	MOVB R2, [R1]
 	CMP R2, R4
 	JLE REBUCADO2
-	
+
 	CMP R2, R4
 	JGE REBUCADO4
 
@@ -1769,10 +1788,10 @@ REBUCADOS_CIMA:
 	MOVB R2, [R1]
 	CMP R2, R4
 	JLE REBUCADO1
-	
+
 	CMP R2, R4
 	JGE REBUCADO3
-	
+
 REBUCADO1:
 	MOV R9, DEF_CORDS_REBUCADO1_SPAWN
 	CALL APAGAR_FRUTA
@@ -1784,17 +1803,15 @@ REBUCADO2:
 REBUCADO3:
 	MOV R9, DEF_CORDS_REBUCADO3_SPAWN
 	CALL APAGAR_FRUTA
-	JMP RETURN_APAGAR_FRUTA	
+	JMP RETURN_APAGAR_FRUTA
 REBUCADO4:
 	MOV R9, DEF_CORDS_REBUCADO4_SPAWN
-	CALL APAGAR_FRUTA	
+	CALL APAGAR_FRUTA
 	JMP RETURN_APAGAR_FRUTA
-	
-VICTORY:
-	JMP VICTORY
-	
+
+
 RETURN_APAGAR_FRUTA:
-	POP R11 
+	POP R11
 	POP R9
 	POP R4
 	POP R3
