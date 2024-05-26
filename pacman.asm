@@ -65,6 +65,7 @@ POSICAO_INICIAL_PACMAN_Y EQU 30 ; posicao inicial do pacman Y
 
 ; --- SOM --- ;
 EMITIR_SOM EQU 605AH ; endereço do comando para emitir um som
+PAUSA_SOM EQU 605EH ; endereço do comando para pausar um som
 
 ; --- Display --- ;
 DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
@@ -96,10 +97,10 @@ DEF_REBUCADO:
 	WORD RED
     BYTE 4
     BYTE 4
-    WORD 1, 0, 0, 0
-    WORD 0, 1, 1, 0
-    WORD 0, 1, 0, 1
-    WORD 0, 0, 0, 1
+    BYTE 1, 0, 0, 1
+    BYTE 0, 1, 1, 0
+    BYTE 0, 1, 1, 0
+    BYTE 1, 0, 0, 1
 
  DEF_PACMAN_DIREITA:			; tabela que define o pacman a andar
 	WORD YELLOW
@@ -229,6 +230,16 @@ DEF_NINHO_PACMAN:
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	BYTE 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1
+	
+DEF_LINHA_FECHA_NINHO:
+	WORD BLUE_L1
+	BYTE 8
+	BYTE 1
+	BYTE 1, 1, 1, 1, 1, 1, 1, 1
+	
+DEF_CORDS_LINHA_FECHA:
+	BYTE 14
+	BYTE 28
 
 DEF_CORDS_PACMAN_SPAWN:
 	BYTE 16
@@ -250,9 +261,31 @@ DEF_CORDS_GRELHA_SPAWN:
 	BYTE 0
 	BYTE 0
 
+DEF_CORDS_REBUCADO1_SPAWN:
+    BYTE 2
+    BYTE 2
+
+DEF_CORDS_REBUCADO2_SPAWN:
+    BYTE 26
+    BYTE 2
+
+DEF_CORDS_REBUCADO3_SPAWN:
+    BYTE 2
+    BYTE 58
+
+DEF_CORDS_REBUCADO4_SPAWN:
+    BYTE 26
+    BYTE 58
+	
 DEF_PAR:
     BYTE 0
+	
+DEF_ESTADO_NINHO:
+	WORD 0
 
+DEF_NUMERO_REBUCADOS:
+	BYTE 4
+	
 DEF_ESTADO_JOGO:
     WORD 0 ; 0 - Jogo em execucao, 1 - Jogo em pausa, 2 - Jogo terminado
 
@@ -266,57 +299,70 @@ INT_TABLE:
  ; Registos reservados:
  ; R0 - Valor do teclado
 
- PLACE   0   ; o código tem de começar em 0000H
-     MOV  SP, SP_inicial
-     MOV  [APAGA_AVISO], R1	; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
-     MOV  [APAGA_ECRÃ], R1
-     MOV R1, 0
-     MOV  [SELECIONA_FUNDO], R1	; muda o cenário de fundo (o valor de R1 não é relevante)
-     MENU_INICIAL:
-     CALL CHAMA_TECLADO
-     MOV R5, TECLA_C
-     CMP R0, R5
-     JZ JOGAR
-     JMP MENU_INICIAL
+PLACE   0   ; o código tem de começar em 0000H
+    MOV  SP, SP_inicial
+    MOV  [APAGA_AVISO], R1	; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
+    MOV  [APAGA_ECRÃ], R1
+    MOV R1, 0
+    MOV  [SELECIONA_FUNDO], R1	; muda o cenário de fundo (o valor de R1 não é relevante)
+    MOV R1, 1
+    MOV [EMITIR_SOM], R1
+	CALL RESET_POSICAO
+    MENU_INICIAL:
+    CALL CHAMA_TECLADO
+    MOV R5, TECLA_C
+    CMP R0, R5
+    JZ JOGAR
+    JMP MENU_INICIAL
 
-     JOGAR:
-     MOV R2, 0
-     MOV R1, 1
-     MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
- 	 MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
-     CALL DESENHA_GRELHA
- 	 MOV BTE, INT_TABLE
+    JOGAR:
+    MOV [PAUSA_SOM], R1
+    MOV R2, 0
+    MOV R1, 1
+    MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+ 	MOV  [SELECIONA_FUNDO], R1		; muda o cenário de fundo
+    CALL DESENHA_GRELHA
+ 	MOV BTE, INT_TABLE
 
  	EI
  	EI0
  	EI1
 
-
- 	MOV	 R1, 0
- 	CALL RESET_POSICAO
- 	CALL DESENHA_NINHO
- 	CALL DESENHA_PACMAN_PARADO
-     JMP ESPERA_TECLADO
-     ESPERA_TECLADO_PARADO:
-     CALL DESENHA_PACMAN_PARADO
-     ESPERA_TECLADO:
-     CALL CHAMA_TECLADO
-     CMP R0, 0
-     JZ ESPERA_TECLADO_PARADO
-     MOVIMENTO:
-     CMP R0, R2
-     JZ MOVIMENTO_DELAY
-     MOVIMENTO_CONTINUO:
-     JMP VERIFICA_INPUT
-     INICIO:
-     MOV R2, R0
-     CALL FUNCAO_DELAY
-     CALL FUNCAO_DELAY
-     JMP ESPERA_TECLADO
-     MOVIMENTO_DELAY:
-     CALL FUNCAO_DELAY
-     CALL FUNCAO_DELAY
-     JMP MOVIMENTO_CONTINUO
+	MOV	 R1, 0
+	CALL DESENHA_NINHO
+	CALL DESENHA_PACMAN_PARADO
+	MOV R9, DEF_CORDS_REBUCADO1_SPAWN
+	CALL DESENHA_REBUCADO
+	MOV R9, DEF_CORDS_REBUCADO2_SPAWN
+	CALL DESENHA_REBUCADO
+	MOV R9, DEF_CORDS_REBUCADO3_SPAWN
+	CALL DESENHA_REBUCADO
+	MOV R9, DEF_CORDS_REBUCADO4_SPAWN
+	CALL DESENHA_REBUCADO
+	MOV R9, 0
+    JMP ESPERA_TECLADO
+    ESPERA_TECLADO_PARADO:
+    ;CALL DESENHA_PACMAN_PARADO
+    ESPERA_TECLADO:
+    CALL CHAMA_TECLADO
+    CMP R0, 0
+    JZ ESPERA_TECLADO_PARADO
+    MOVIMENTO:
+    CMP R0, R2
+    JZ MOVIMENTO_DELAY
+    MOVIMENTO_CONTINUO:
+    CALL EMITIR_1_SOM
+    JMP VERIFICA_INPUT
+INICIO:
+    MOV R2, R0
+	MOV R9, 0
+    CALL FUNCAO_DELAY
+    CALL FUNCAO_DELAY
+	CALL FECHAR_OU_NAO
+    JMP ESPERA_TECLADO
+    MOVIMENTO_DELAY:
+    CALL FUNCAO_DELAY
+    JMP MOVIMENTO_CONTINUO
 
 ; **********************************************************************
 ; CRIAR_BONECO - Desenha um fanstasma na linha e coluna indicadas
@@ -548,6 +594,7 @@ PAUSA_JOGO:
     MOV [DEF_ESTADO_JOGO], R1
     MOV R2, 2
     MOV  [SELECIONA_FUNDO], R2
+    MOV [EMITIR_SOM], R1
     MOV [APAGA_ECRÃ], R1
     MOV R2, TECLA_D
     PAUSA_JOGO_LOOP:
@@ -565,6 +612,7 @@ PAUSA_JOGO:
     CALL DESENHA_GRELHA
     CALL DESENHA_NINHO
     CALL DESENHA_PACMAN_PARADO
+    MOV [PAUSA_SOM], R1
     POP R3
     POP R2
     POP R1
@@ -949,7 +997,16 @@ DESENHA_FANTASMA:
 	POP R9
 	POP R1
 	RET
-
+	
+DESENHA_REBUCADO:
+	PUSH R1
+	PUSH R9
+	MOV R1, DEF_REBUCADO
+	CALL CRIAR_BONECO
+	POP R9
+	POP R1
+	RET
+	
 ; **********************************************************************
 ; FUNCOES_APAGAR_FIGURA: Para apagar uma figura qualquer
 ;
@@ -1362,6 +1419,12 @@ RESET_POSICAO:
 	ADD R1, 1
 	MOV R2, 38H
 	MOVB [R1], R2
+	MOV R1, DEF_NUMERO_REBUCADOS
+	MOV R2, 04H
+	MOVB [R1], R2
+	MOV R1, DEF_CORDS_LINHA_FECHA
+	MOV R2, 0EH
+	MOVB [R1], R2
 	POP R2
 	POP R1
 	RET
@@ -1600,3 +1663,58 @@ RETURN_MOVE_FANTASMA:
 	POP R2
 	POP R0
 	RET
+	
+; **********************************************************************
+; FECHA_NINHO: Fecha o ninho para o pacman nao conseguir voltar a entrar
+;
+; Argumento : Nenhum
+;
+; **********************************************************************
+	
+FECHA_NINHO:
+	MOV R3, 8
+	MOV R1, DEF_LINHA_FECHA_NINHO
+	MOV R9, DEF_CORDS_LINHA_FECHA
+	CALL CRIAR_BONECO
+	MOV R1, DEF_LINHA_FECHA_NINHO
+	MOV R9, DEF_CORDS_LINHA_FECHA
+	MOVB R2, [R9]
+	ADD R2, R3
+    MOVB [R9], R2
+	CALL CRIAR_BONECO
+	JMP FIM_DA_FUNC
+	RET
+	
+FECHAR_OU_NAO:
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R9
+	MOV R1, DEF_ESTADO_NINHO
+	MOVB R2, [R1]
+	CMP R2, 1
+	JZ FIM_DA_FUNC
+	
+	MOV R3, 9
+	MOV R4, 23
+	MOV R1, DEF_CORDS_PACMAN_SPAWN
+	MOVB R2, [R1]
+	CMP R2, R3
+	JZ FECHA_NINHO
+	CMP R2, R4
+	JZ FECHA_NINHO
+FIM_DA_FUNC:
+	POP R9
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	RET
+
+; **********************************************************************
+; COME_FRUTA: O pacman quando tocar numa fruta, vai "come-la". 
+;
+; Argumento : R0 - Input da tecla
+;
+; **********************************************************************
