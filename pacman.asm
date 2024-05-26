@@ -65,6 +65,7 @@ POSICAO_INICIAL_PACMAN_Y EQU 30 ; posicao inicial do pacman Y
 
 ; --- SOM --- ;
 EMITIR_SOM EQU 605AH ; endereço do comando para emitir um som
+PAUSA_SOM EQU 605EH ; endereço do comando para pausar um som
 
 ; --- Display --- ;
 DISPLAY EQU 0A000H ; Endereco do display de 7 elementos
@@ -272,6 +273,8 @@ INT_TABLE:
      MOV  [APAGA_ECRÃ], R1
      MOV R1, 0
      MOV  [SELECIONA_FUNDO], R1	; muda o cenário de fundo (o valor de R1 não é relevante)
+     MOV R1, 1
+     MOV [EMITIR_SOM], R1
      MENU_INICIAL:
      CALL CHAMA_TECLADO
      MOV R5, TECLA_C
@@ -280,6 +283,7 @@ INT_TABLE:
      JMP MENU_INICIAL
 
      JOGAR:
+     MOV [PAUSA_SOM], R1
      MOV R2, 0
      MOV R1, 1
      MOV  [APAGA_ECRÃ], R1			; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
@@ -548,6 +552,7 @@ PAUSA_JOGO:
     MOV [DEF_ESTADO_JOGO], R1
     MOV R2, 2
     MOV  [SELECIONA_FUNDO], R2
+    MOV [EMITIR_SOM], R1
     MOV [APAGA_ECRÃ], R1
     MOV R2, TECLA_D
     PAUSA_JOGO_LOOP:
@@ -565,6 +570,7 @@ PAUSA_JOGO:
     CALL DESENHA_GRELHA
     CALL DESENHA_NINHO
     CALL DESENHA_PACMAN_PARADO
+    MOV [PAUSA_SOM], R1
     POP R3
     POP R2
     POP R1
