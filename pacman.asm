@@ -327,6 +327,7 @@ PLACE   0   ; o código tem de começar em 0000H
  	EI0
  	EI1
 
+
 	MOV	 R1, 0
 	CALL DESENHA_NINHO
 	CALL DESENHA_PACMAN_PARADO
@@ -1104,7 +1105,8 @@ MOVIMENTO_DIREITA:                     ; as funcoes abaixo irao movimentar o pac
 	POP R1
 	RET
 
-MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA:     
+MOVIMENTO_DIAGONAL_SUPERIOR_ESQUERDA:
+    PUSH R1
 	PUSH R2
 	PUSH R9
 	PUSH R11
@@ -1648,6 +1650,7 @@ RETURN_MOVE_FANTASMA:
 ; **********************************************************************
 
 FECHA_NINHO:
+
 	MOV R3, 8
 	MOV R1, DEF_LINHA_FECHA_NINHO       ; carrega a tabela da linha 
 	MOV R9, DEF_CORDS_LINHA_FECHA       ; carrega as coordernadas da linha 
